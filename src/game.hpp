@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include "player.hpp"
@@ -25,6 +25,7 @@ private:
     sf::RenderWindow mWindow;    
     nomi::player     mPlayer;
     sf::Time         mTimePerFrame;
+    sf::RectangleShape mGround;
   
 };
 

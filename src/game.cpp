@@ -9,13 +9,16 @@ namespace nomi
 {
 
 game::game()
-    : mWindow(sf::VideoMode(800, 600), "nomi")
+    : mWindow(sf::VideoMode(1200, 600), "nomi")
     , mPlayer( 100.f, 150.f )
     , mTimePerFrame( sf::seconds(1.f/60.f) )
+    , mGround( sf::Vector2f( 1200, 100 ) )
 {
     mWindow.setFramerateLimit(60);
     mWindow.setKeyRepeatEnabled(false);
 
+    mGround.setPosition(0,500);
+    mGround.setFillColor( sf::Color(101,67,33) );
 }
 
 game::~game()
@@ -60,7 +63,8 @@ void game::update(sf::Time dt)
 
 void game::render(void)
 {
-    mWindow.clear(sf::Color::Blue);
+    mWindow.clear(sf::Color(174,234,255) );
+    mWindow.draw(mGround);
     mWindow.draw(mPlayer);
     mWindow.display();
 }

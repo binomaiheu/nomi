@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include <cmath>
 
 #include "player.hpp"
@@ -18,13 +19,17 @@ player::player(float speed, float jumpHeight)
     , mJump(false)
 {
     // only load smaller part    
-    if (!mTexture.loadFromFile("share/pixmaps/kit_from_firefox.png", sf::IntRect(0, 0, 56, 80) ))
+    //std::string filename = "share/pixmaps/kit_from_firefox.png";
+    //std::string filename = "share/pixmaps/gnu_from_gnu.png";
+    //std::string filename = "share/pixmaps/wilber_from_gimp.png";
+    //std::string filename = "share/pixmaps/tux_from_linux.png";
+    std::string filename = "share/pixmaps/kisi_from_konsolscript.png";
+    if (!mTexture.loadFromFile(filename, sf::IntRect(0, 0, 56, 80) ))
         throw std::runtime_error("Unable to load player texture...");
 
     mSprite.setTexture(mTexture);
-    mSprite.setPosition(20.f, 400.f);
-    mSprite.setOrigin(28.,80.);
-    mSprite.scale(1.,1.);
+    mSprite.setPosition(50.f, 400.f);
+    mSprite.setOrigin(28.,80.); // set origin to the bottom center 
 }
 
 player::~player()
@@ -42,7 +47,7 @@ void player::update(sf::Time dt)
     // however instead of setting it 0, we multiply the current value with a number < 1, this results in an effect where the 
     // sprite slows down when stopping or gradually accelerates when starting to move, a bit more realistic effect. If this 
     // constant is closer to 0 the smaller this effect, if it is closer to 1, the larger the effect...
-    mVelocity.x *= 0.8f;
+    mVelocity.x *= 0.85f;
 
     if (mIsMovingLeft)  {
         mVelocity.x -= mSpeed;        
