@@ -30,6 +30,7 @@ find_package(Eigen3 REQUIRED)
 add_executable(nomi
   src/main.cpp
   src/game.cpp
+  src/player.cpp
 )
 
 target_compile_features(nomi
