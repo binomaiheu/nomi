@@ -1,93 +1,67 @@
 #include "game.hpp"
+#include "player.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/System/Vector2.hpp>
 
-namespace nomi {
-
-game::game() 
-: mWindow( sf::VideoMode(800,600), "nomi" )
-, mPlayer( 20.f )
+namespace nomi
 {
-    mPlayer.setPosition(100.f, 100.f);
-    mPlayer.setFillColor( sf::Color::Red );
+
+game::game()
+    : mWindow(sf::VideoMode(800, 600), "nomi")
+    , mPlayer( 100.f, 150.f )
+    , mTimePerFrame( sf::seconds(1.f/60.f) )
+{
+    mWindow.setFramerateLimit(60);
+
 }
 
 game::~game()
 {
 }
 
-void game::run( void ) 
-{ 
-  while (mWindow.isOpen()) {
+void game::run(void)
+{
+    sf::Clock clock;
+    sf::Time  timeSinceLastUpdate = sf::Time::Zero;
+    while (mWindow.isOpen())
+    {
+        
         processEvents();
-        update();
+        timeSinceLastUpdate += clock.restart();
+        while ( timeSinceLastUpdate > mTimePerFrame ) 
+        {
+            timeSinceLastUpdate -= mTimePerFrame;   
+            processEvents();
+            update( mTimePerFrame );
+        }
         render();
-  }
+    }
 }
 
-void game::processEvents( void )
+void game::processEvents(void)
 {
     sf::Event ev;
-    while( mWindow.pollEvent(ev) ) 
+    while (mWindow.pollEvent(ev))
     {
-        switch ( ev.type ) 
-        {
-            case sf::Event::Closed: 
-                mWindow.close();
-                break;
-            case sf::Event::KeyPressed: 
-                handlePlayerInput( ev.key.code, true );
-                break;
-            case sf::Event::KeyReleased: 
-                handlePlayerInput( ev.key.code, false );
-                break;
-        }
-
-    }
+        // call entity event handlers
+        mPlayer.handleEvent(ev);
+        
+        if ( ev.type == sf::Event::Closed ) mWindow.close();
+    }    
 }
 
-void game::handlePlayerInput( sf::Keyboard::Key key, bool isPressed )
+void game::update(sf::Time dt)
 {
-    switch ( key )
-    {
-        case sf::Keyboard::W: 
-            mIsMovingUp = isPressed;
-            break;
-        case sf::Keyboard::S: 
-            mIsMovingDown = isPressed;
-            break;
-        case sf::Keyboard::A: 
-            mIsMovingLeft = isPressed;
-            break;
-        case sf::Keyboard::D: 
-            mIsMovingRight = isPressed;
-            break;        
-
-    }
+    mPlayer.update( dt );
 }
 
-void game::update( void )
+void game::render(void)
 {
-    sf::Vector2f m(0.f,0.f);
-    
-    if ( mIsMovingUp ) m.y -= 1.f;
-    if ( mIsMovingDown ) m.y += 1.f;
-    if ( mIsMovingLeft ) m.x -= 1.f;
-    if ( mIsMovingRight ) m.x += 1.f;
-
-    mPlayer.move(m);
+    mWindow.clear(sf::Color::Blue);
+    mWindow.draw(mPlayer);
+    mWindow.display();
 }
 
-void game::render( void )
-{
-  mWindow.clear( sf::Color::Green );
-  mWindow.draw( mPlayer );
-  mWindow.display();
-
-}
-
-
-
-} // namespace
+} // namespace nomi

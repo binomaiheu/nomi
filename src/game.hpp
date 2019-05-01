@@ -4,6 +4,8 @@
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Window/Event.hpp>
 
+#include "player.hpp"
+
 namespace nomi {
 
 // main game class for the nomi game
@@ -16,20 +18,14 @@ public:
 
 private:
     void processEvents( void );
-    void update( void );
-    void render( void );
-
-    void handlePlayerInput( sf::Keyboard::Key key, bool isPressed );
+    void update( sf::Time dt );
+    void render( void );   
 
 private:
-    sf::RenderWindow mWindow;
-    sf::CircleShape  mPlayer;
-
-    bool mIsMovingUp;
-    bool mIsMovingDown;
-    bool mIsMovingLeft;
-    bool mIsMovingRight;
+    sf::RenderWindow mWindow;    
+    nomi::player     mPlayer;
+    sf::Time         mTimePerFrame;
+  
 };
 
 }
-
