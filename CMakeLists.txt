@@ -31,6 +31,7 @@ add_executable(nomi
   src/main.cpp
   src/game.cpp
   src/player.cpp
+  src/animation.cpp
 )
 
 target_compile_features(nomi
