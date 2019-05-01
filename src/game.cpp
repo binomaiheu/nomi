@@ -14,6 +14,7 @@ game::game()
     , mTimePerFrame( sf::seconds(1.f/60.f) )
 {
     mWindow.setFramerateLimit(60);
+    mWindow.setKeyRepeatEnabled(false);
 
 }
 

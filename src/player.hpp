@@ -32,8 +32,14 @@ private:
     bool  mCanJump; // player is allowed to jump
     float mWeight;  // how heavy are we ?
     
+    sf::Vector2f mVelocity; // player velocity
+
     bool mIsMovingLeft;
     bool mIsMovingRight;
+    bool mJump;
+
+private:
+    void onCollision( sf::Vector2f direction );
 };
 
 } // namespace nomi

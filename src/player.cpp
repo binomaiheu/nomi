@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdexcept>
+#include <cmath>
 
 #include "player.hpp"
 
@@ -10,16 +11,20 @@ player::player(float speed, float jumpHeight)
     : mSpeed(speed)
     , mJumpHeight(jumpHeight)
     , mCanJump(true)
-    , mWeight(10.f) // gravity (how heavy is the player)
+    , mWeight(5.*981.f) // gravity (how heavy is the player)
+    , mVelocity(0.f, 0.f)
     , mIsMovingLeft(false)
     , mIsMovingRight(false)
+    , mJump(false)
 {
     // only load smaller part    
     if (!mTexture.loadFromFile("share/pixmaps/kit_from_firefox.png", sf::IntRect(0, 0, 56, 80) ))
         throw std::runtime_error("Unable to load player texture...");
 
     mSprite.setTexture(mTexture);
-    mSprite.setPosition(20.f, 500.f);
+    mSprite.setPosition(20.f, 400.f);
+    mSprite.setOrigin(28.,80.);
+    mSprite.scale(1.,1.);
 }
 
 player::~player()
@@ -33,15 +38,37 @@ void player::draw(sf::RenderTarget &target, sf::RenderStates states) const
 
 void player::update(sf::Time dt)
 {    
-    sf::Vector2f velocity(0.f, 0.f);
+    // every frame we reset the x velocity to 0 as we only need to remember the y velocity to be able to jump between frames
+    // however instead of setting it 0, we multiply the current value with a number < 1, this results in an effect where the 
+    // sprite slows down when stopping or gradually accelerates when starting to move, a bit more realistic effect. If this 
+    // constant is closer to 0 the smaller this effect, if it is closer to 1, the larger the effect...
+    mVelocity.x *= 0.8f;
 
-    if (mIsMovingLeft) velocity.x  -= mSpeed;
-    if (mIsMovingRight) velocity.x += mSpeed;
+    if (mIsMovingLeft)  {
+        mVelocity.x -= mSpeed;        
+    }
+    if (mIsMovingRight) {
+        mVelocity.x += mSpeed;        
+    }
 
     if ( mSprite.getPosition().y < 500 )
-        velocity.y += mWeight;
+        mVelocity.y += mWeight * dt.asSeconds();
+    
+    if ( mSprite.getPosition().y >= 500 ) { 
+        mVelocity.y = 0.; 
+        mCanJump = true; 
+    }
 
-    mSprite.move( velocity * dt.asSeconds() );
+    if ( mJump && mCanJump ) {
+        mCanJump = false;
+        mJump    = false;
+        mVelocity.y = -sqrt( 2.0 * mWeight * mJumpHeight ); 
+    }   
+
+    // move the sprite
+    mSprite.move( mVelocity * dt.asSeconds() );
+    // set direction of the sprite, use setScale, not scale as we want this w.r.t. the original
+    mVelocity.x > 0 ? mSprite.setScale(1.,1.) : mSprite.setScale(-1.,1.);
 }
 
 void player::handleEvent(const sf::Event &ev)
@@ -63,14 +90,36 @@ void player::handleInput(sf::Keyboard::Key key, bool isPressed)
     switch (key)
     {
     case sf::Keyboard::Left:
-        mIsMovingLeft = isPressed;
-        std::cout << "moving left..." << mIsMovingLeft << "\n";
+        mIsMovingLeft = isPressed;        
         break;
     case sf::Keyboard::Right:
-        mIsMovingRight = isPressed;
-        std::cout << "moving right..." << mIsMovingRight << "\n";
+        mIsMovingRight = isPressed;        
+        break;
+    case sf::Keyboard::Space:
+        if ( isPressed ) mJump = true;
         break;
     }
+}
+
+// needed when properly adding collision detection, see : 
+// https://www.youtube.com/watch?v=l2iCYCLi6MU&list=PL21OsoBLPpMOO6zyVlxZ4S4hwkY_SLRW9&index=13
+void player::onCollision( sf::Vector2f direction ) 
+{
+    if ( direction.x > 0 ) {
+        // collision to the right
+        mVelocity.x = 0.f;
+    } else if ( direction.x < 0 ) {
+        // collision to the left
+        mVelocity.x = 0.f;
+    } else if ( direction.y < 0 ) {
+        // collision to the bottom
+        mVelocity.y = 0.;
+        mCanJump = true; // can jump againm we have collided with something on the bottom
+    } else {
+        // collision to the top
+        mVelocity.y = 0.;
+    }
+
 }
 
 } // namespace nomi
