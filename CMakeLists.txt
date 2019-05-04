@@ -27,6 +27,10 @@ find_package(OpenGL)
 find_package(Boost REQUIRED COMPONENTS date_time system filesystem program_options)
 find_package(Eigen3 REQUIRED)
 
+# installed Box2d via vcpkg
+#find_package(unofficial-box2d CONFIG REQUIRED)
+
+
 # include the tmxlite project
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 ExternalProject_Add(tmxlite
@@ -41,8 +45,9 @@ add_executable(nomi
   src/main.cpp
   src/game.cpp
   src/player.cpp
-  src/animation.cpp
+  src/animation.cpp  
   src/tilemap.cpp
+  src/world.cpp
 )
 
 add_dependencies(nomi tmxlite)
@@ -72,3 +77,6 @@ target_link_libraries(nomi
   Eigen3::Eigen
   -L${EXTERNAL_INSTALL_LOCATION}/lib -ltmxlite
 )
+
+
+# target_link_libraries(main PRIVATE unofficial::box2d::Box2D)
