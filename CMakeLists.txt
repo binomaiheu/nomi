@@ -9,13 +9,14 @@ endif()
 
 project(nomi)
 
+include(ExternalProject)
+
 set(CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake_modules"
      ${CMAKE_MODULE_PATH})
 
 # for static libs uncomment here, but then ze need static smfl with all deps...
 #set(SFML_STATIC_LIBRARIES TRUE)
-
 
 # I have a somewhat older graphics card, so need to use the legacy interface
 set(OpenGL_GL_PREFERENCE LEGACY)
@@ -26,13 +27,25 @@ find_package(OpenGL)
 find_package(Boost REQUIRED COMPONENTS date_time system filesystem program_options)
 find_package(Eigen3 REQUIRED)
 
+# include the tmxlite project
+set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+ExternalProject_Add(tmxlite
+  GIT_REPOSITORY https://github.com/fallahn/tmxlite
+  SOURCE_SUBDIR tmxlite
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+)
+include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
+link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
 
 add_executable(nomi
   src/main.cpp
   src/game.cpp
   src/player.cpp
   src/animation.cpp
+  src/tilemap.cpp
 )
+
+add_dependencies(nomi tmxlite)
 
 target_compile_features(nomi
   PRIVATE
@@ -41,7 +54,7 @@ target_compile_features(nomi
 
 target_compile_options(nomi
   PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-switch>
+  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-switch -Wno-unused>
 )
 
 target_compile_definitions(nomi
@@ -57,4 +70,5 @@ target_link_libraries(nomi
   Boost::program_options
   Boost::system
   Eigen3::Eigen
+  -L${EXTERNAL_INSTALL_LOCATION}/lib -ltmxlite
 )

@@ -9,16 +9,27 @@ namespace nomi
 {
 
 game::game()
-    : mWindow(sf::VideoMode(1200, 600), "nomi")
-    , mPlayer( 100.f, 150.f )
+    : mWindow(sf::VideoMode(1280, 800), "nomi")
+    , mPlayer( 80.f, 220.f )
     , mTimePerFrame( sf::seconds(1.f/60.f) )
-    , mGround( sf::Vector2f( 1200, 100 ) )
+    , mGround( sf::Vector2f( 1280, 100 ) )
 {
     mWindow.setFramerateLimit(60);
     mWindow.setKeyRepeatEnabled(false);
 
     mGround.setPosition(0,500);
     mGround.setFillColor( sf::Color(101,67,33) );
+
+    mMap.load("share/tilemaps/tilemap2.tmx");
+    layerZero = std::make_shared<MapLayer>(mMap, 0);
+
+    mTileMap = std::make_unique<tilemap>( mMap );
+    
+     //tmx::Layer::Type::
+
+//    MapLayer layerOne(map, 1);
+//    MapLayer layerTwo(map, 2);
+
 }
 
 game::~game()
@@ -28,6 +39,7 @@ game::~game()
 void game::run(void)
 {
     sf::Clock clock;
+    //sf::Clock globalClock;
     sf::Time  timeSinceLastUpdate = sf::Time::Zero;
     while (mWindow.isOpen())
     {
@@ -40,6 +52,9 @@ void game::run(void)
             processEvents();
             update( mTimePerFrame );
         }
+
+        //layerZero->update( globalClock.getElapsedTime() );
+
         render();
     }
 }
@@ -63,8 +78,10 @@ void game::update(sf::Time dt)
 
 void game::render(void)
 {
-    mWindow.clear(sf::Color(174,234,255) );
-    mWindow.draw(mGround);
+    //mWindow.clear(sf::Color(174,234,255) );
+    mWindow.clear(sf::Color::Black);
+    //mWindow.draw(mGround);
+    mWindow.draw(*layerZero);
     mWindow.draw(mPlayer);
     mWindow.display();
 }

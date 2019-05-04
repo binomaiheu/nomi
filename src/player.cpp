@@ -19,11 +19,11 @@ player::player(float speed, float jumpHeight)
     , mJump(false)
 {
     // only load smaller part    
-    //std::string filename = "share/pixmaps/kit_from_firefox.png";
+    std::string filename = "share/pixmaps/kit_from_firefox.png";
     //std::string filename = "share/pixmaps/gnu_from_gnu.png";
     //std::string filename = "share/pixmaps/wilber_from_gimp.png";
     //std::string filename = "share/pixmaps/tux_from_linux.png";
-    std::string filename = "share/pixmaps/kisi_from_konsolscript.png";
+    //std::string filename = "share/pixmaps/kisi_from_konsolscript.png";
     if (!mTexture.loadFromFile(filename, sf::IntRect(0, 0, 56, 80) ))
         throw std::runtime_error("Unable to load player texture...");
 
@@ -56,10 +56,10 @@ void player::update(sf::Time dt)
         mVelocity.x += mSpeed;        
     }
 
-    if ( mSprite.getPosition().y < 500 )
+    if ( mSprite.getPosition().y < 650 )
         mVelocity.y += mWeight * dt.asSeconds();
     
-    if ( mSprite.getPosition().y >= 500 ) { 
+    if ( mSprite.getPosition().y >=  650 ) { 
         mVelocity.y = 0.; 
         mCanJump = true; 
     }
