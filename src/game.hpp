@@ -6,9 +6,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Event.hpp>
 
-#include "tmxlayer.hpp"
-#include "player.hpp"
-#include "tilemap.hpp"
+#include "world.hpp"
 
 namespace nomi {
 
@@ -26,15 +24,9 @@ private:
     void render( void );   
 
 private:
-    sf::RenderWindow mWindow;    
-    nomi::player     mPlayer;
-    sf::Time         mTimePerFrame;
-    sf::RectangleShape mGround;
-  
-    tmx::Map mMap;
-    std::shared_ptr<MapLayer> layerZero;
-    std::unique_ptr<tilemap>  mTileMap;
-
+    sf::Time                 mTimePerFrame;
+    sf::RenderWindow         mWindow;
+    std::unique_ptr<world>   mWorld;
 };
 
 }

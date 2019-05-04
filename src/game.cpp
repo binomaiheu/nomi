@@ -1,5 +1,5 @@
 #include "game.hpp"
-#include "player.hpp"
+#include "world.hpp"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
@@ -9,27 +9,11 @@ namespace nomi
 {
 
 game::game()
-    : mWindow(sf::VideoMode(1280, 800), "nomi")
-    , mPlayer( 80.f, 220.f )
-    , mTimePerFrame( sf::seconds(1.f/60.f) )
-    , mGround( sf::Vector2f( 1280, 100 ) )
+    : mTimePerFrame( sf::seconds(1.f/60.f) )
+    , mWindow(sf::VideoMode(1280, 800), "nomi")
 {
-    mWindow.setFramerateLimit(60);
-    mWindow.setKeyRepeatEnabled(false);
-
-    mGround.setPosition(0,500);
-    mGround.setFillColor( sf::Color(101,67,33) );
-
-    mMap.load("share/tilemaps/tilemap2.tmx");
-    layerZero = std::make_shared<MapLayer>(mMap, 0);
-
-    mTileMap = std::make_unique<tilemap>( mMap );
-    
-     //tmx::Layer::Type::
-
-//    MapLayer layerOne(map, 1);
-//    MapLayer layerTwo(map, 2);
-
+    // create the world...
+    mWorld = std::make_unique<world>( mWindow );
 }
 
 game::~game()
@@ -39,11 +23,9 @@ game::~game()
 void game::run(void)
 {
     sf::Clock clock;
-    //sf::Clock globalClock;
     sf::Time  timeSinceLastUpdate = sf::Time::Zero;
     while (mWindow.isOpen())
-    {
-        
+    {        
         processEvents();
         timeSinceLastUpdate += clock.restart();
         while ( timeSinceLastUpdate > mTimePerFrame ) 
@@ -52,9 +34,6 @@ void game::run(void)
             processEvents();
             update( mTimePerFrame );
         }
-
-        //layerZero->update( globalClock.getElapsedTime() );
-
         render();
     }
 }
@@ -65,7 +44,7 @@ void game::processEvents(void)
     while (mWindow.pollEvent(ev))
     {
         // call entity event handlers
-        mPlayer.handleEvent(ev);
+        mWorld->getPlayer().handleEvent(ev);
         
         if ( ev.type == sf::Event::Closed ) mWindow.close();
     }    
@@ -73,16 +52,15 @@ void game::processEvents(void)
 
 void game::update(sf::Time dt)
 {
-    mPlayer.update( dt );
+    mWorld->update( dt );
 }
 
 void game::render(void)
-{
-    //mWindow.clear(sf::Color(174,234,255) );
+{    
     mWindow.clear(sf::Color::Black);
-    //mWindow.draw(mGround);
-    mWindow.draw(*layerZero);
-    mWindow.draw(mPlayer);
+
+    mWorld->draw();
+
     mWindow.display();
 }
 

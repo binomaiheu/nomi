@@ -22,6 +22,8 @@ public:
     void update( sf::Time dt );
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+    sf::Vector2f getPosition() { return mSprite.getPosition(); } // should update this
+
 
 private:
     sf::Texture mTexture;

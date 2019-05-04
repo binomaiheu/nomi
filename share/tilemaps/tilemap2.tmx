@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="50" height="13" tilewidth="64" tileheight="64" infinite="0" nextlayerid="5" nextobjectid="5">
+<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="50" height="13" tilewidth="64" tileheight="64" infinite="0" nextlayerid="5" nextobjectid="6">
  <tileset firstgid="1" source="tilesets/tileset.tsx"/>
- <layer id="3" name="Tile Layer 1" width="50" height="13">
+ <layer id="3" name="Background" width="50" height="13">
   <data encoding="csv">
 42,42,42,42,1,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
 42,42,42,42,2,42,16,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,42,
@@ -18,9 +18,10 @@
 38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38
 </data>
  </layer>
- <objectgroup id="4" name="Object Layer 1">
-  <object id="1" type="platform" x="770" y="320" width="190" height="66"/>
+ <objectgroup id="4" name="Objects">
   <object id="2" type="platform" x="512" y="450" width="190" height="62"/>
-  <object id="3" x="1096" y="522" width="64" height="114"/>
+  <object id="5" x="782" y="323">
+   <polygon points="3,-1 161,-2 176,7 176,50 166,59 0,60 -13,49 -13,10"/>
+  </object>
  </objectgroup>
 </map>

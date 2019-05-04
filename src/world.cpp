@@ -18,8 +18,11 @@ world::world( sf::RenderWindow& window )
     mMap.load("share/tilemaps/tilemap2.tmx");
     layerZero = std::make_shared<MapLayer>(mMap, 0);
         
+
+    
     // TODO
     // set the mWorldBounds to the map size...
+    
     // set view to the spawn position...
 
     // start the world clock
