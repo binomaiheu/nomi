@@ -3,8 +3,6 @@
 #include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
-#include <tmxlite/Map.hpp>
-
 #include "player.hpp"
 #include "levelmap.hpp"
 #include "resourcemgr.hpp"
@@ -33,7 +31,6 @@ private:
 
     sf::Clock         mClock;
 
-    tmx::Map          mMap;
     LevelMap          mLevelMap;
     
     ResourceMgr<sf::Texture, std::string> mTextures;

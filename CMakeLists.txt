@@ -26,9 +26,7 @@ find_package(SFML 2.5 COMPONENTS system window graphics audio network REQUIRED)
 find_package(OpenGL)
 find_package(Boost REQUIRED COMPONENTS date_time system filesystem program_options)
 find_package(Eigen3 REQUIRED)
-
-# installed Box2d via vcpkg
-#find_package(unofficial-box2d CONFIG REQUIRED)
+find_package(unofficial-box2d CONFIG REQUIRED)
 
 
 # include the tmxlite project
@@ -44,6 +42,8 @@ link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
 add_executable(nomi
   src/main.cpp
   src/game.cpp
+  src/scenenode.cpp
+  src/entity.cpp
   src/player.cpp
   src/animation.cpp  
   src/levelmap.cpp
@@ -76,8 +76,6 @@ target_link_libraries(nomi
   Boost::program_options
   Boost::system
   Eigen3::Eigen
+  unofficial::box2d::Box2D
   -L${EXTERNAL_INSTALL_LOCATION}/lib -ltmxlite
 )
-
-
-# target_link_libraries(main PRIVATE unofficial::box2d::Box2D)

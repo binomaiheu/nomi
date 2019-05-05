@@ -9,11 +9,11 @@ namespace nomi
 {
 
 Player::Player(float speed, float jumpHeight)
-    : mSpeed(speed)
+    : Entity()
+    , mSpeed(speed)
     , mJumpHeight(jumpHeight)
     , mCanJump(true)
-    , mWeight(5.*981.f) // gravity (how heavy is the player)
-    , mVelocity(0.f, 0.f)
+    , mWeight(5.*981.f) // gravity (how heavy is the player)    
     , mIsMovingLeft(false)
     , mIsMovingRight(false)
     , mJump(false)
@@ -28,53 +28,59 @@ Player::Player(float speed, float jumpHeight)
 
     // choose the figure via the rectangle...   
     mSprite.setTexture(mTexture);
-    mSprite.setTextureRect( sf::IntRect(0, 0, 56, 80) );
-    mSprite.setPosition(50.f, 400.f);
+    mSprite.setTextureRect( sf::IntRect(0, 0, 56, 80) );    
     mSprite.setOrigin(28.,80.); // set origin to the bottom center 
+
+    // set spawn positino
+    this->setVelocity( 0.f, 0.f );
+    this->setPosition(50.f, 400.f);
 }
 
 Player::~Player()
 {
 }
 
-void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
+void Player::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const
 {
+
+    // transforms are handled in the draw() method of SceneNode, so just draw the sprites or other..
     target.draw(mSprite, states);
 }
 
-void Player::update(sf::Time dt)
+void Player::updateCurrent(sf::Time dt)
 {    
+    sf::Vector2f v = this->getVelocity();
+
     // every frame we reset the x velocity to 0 as we only need to remember the y velocity to be able to jump between frames
     // however instead of setting it 0, we multiply the current value with a number < 1, this results in an effect where the 
     // sprite slows down when stopping or gradually accelerates when starting to move, a bit more realistic effect. If this 
     // constant is closer to 0 the smaller this effect, if it is closer to 1, the larger the effect...
-    mVelocity.x *= 0.85f;
+    v.x *= 0.85f;
 
-    if (mIsMovingLeft)  {
-        mVelocity.x -= mSpeed;        
-    }
-    if (mIsMovingRight) {
-        mVelocity.x += mSpeed;        
-    }
+    if (mIsMovingLeft)  v.x -= mSpeed;            
+    if (mIsMovingRight) v.x += mSpeed;        
 
-    if ( mSprite.getPosition().y < 650 )
-        mVelocity.y += mWeight * dt.asSeconds();
+    if ( getPosition().y < 650 ) v.y += mWeight * dt.asSeconds();
     
-    if ( mSprite.getPosition().y >=  650 ) { 
-        mVelocity.y = 0.; 
+    if ( getPosition().y >=  650 ) {
+        v.y = 0.; 
         mCanJump = true; 
     }
 
     if ( mJump && mCanJump ) {
         mCanJump = false;
         mJump    = false;
-        mVelocity.y = -sqrt( 2.0 * mWeight * mJumpHeight ); 
+        v.y = -sqrt( 2.0 * mWeight * mJumpHeight ); 
     }   
 
-    // move the sprite
-    mSprite.move( mVelocity * dt.asSeconds() );
     // set direction of the sprite, use setScale, not scale as we want this w.r.t. the original
-    mVelocity.x > 0 ? mSprite.setScale(1.,1.) : mSprite.setScale(-1.,1.);
+    v.x > 0 ? setScale(1.,1.) : setScale(-1.,1.);
+
+    // update with new velocity
+    setVelocity(v);
+
+    // call the base class implementation of the update ( just to move the sprite )
+    Entity::updateCurrent( dt );
 }
 
 void Player::handleEvent(const sf::Event &ev)
@@ -110,22 +116,24 @@ void Player::handleInput(sf::Keyboard::Key key, bool isPressed)
 // needed when properly adding collision detection, see : 
 // https://www.youtube.com/watch?v=l2iCYCLi6MU&list=PL21OsoBLPpMOO6zyVlxZ4S4hwkY_SLRW9&index=13
 void Player::onCollision( sf::Vector2f direction ) 
-{
+{   
+    sf::Vector2f v = this->getVelocity();
+
     if ( direction.x > 0 ) {
         // collision to the right
-        mVelocity.x = 0.f;
+        v.x = 0.f;
     } else if ( direction.x < 0 ) {
         // collision to the left
-        mVelocity.x = 0.f;
+        v.x = 0.f;
     } else if ( direction.y < 0 ) {
         // collision to the bottom
-        mVelocity.y = 0.;
+        v.y = 0.;
         mCanJump = true; // can jump againm we have collided with something on the bottom
     } else {
         // collision to the top
-        mVelocity.y = 0.;
+        v.y = 0.;
     }
-
+    setVelocity( v );
 }
 
 } // namespace nomi

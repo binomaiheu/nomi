@@ -15,8 +15,6 @@ World::World( sf::RenderWindow& window )
     mWindow.setKeyRepeatEnabled(false);
 
     // load textures & map
-    mMap.load("share/tilemaps/tilemap2.tmx");
-    
     mLevelMap.load_tmx( "share/tilemaps/tilemap2.tmx" );
     
     // TODO : where do we want the textures ???
@@ -35,6 +33,9 @@ World::~World()
 
 void World::loadTextures()
 {
+
+// TODO --> there should be q resource manager in the polaye rlcass for the separate reoucers associated with the player...
+
     mTextures.load( "Kit",    "share/pixmaps/kit_from_firefox.png" );
     mTextures.load( "Gnu",    "share/pixmaps/gnu_from_firefox.png" );
     mTextures.load( "Wilber", "share/pixmaps/wilber_from_firefox.png" );

@@ -90,8 +90,7 @@ void TileMapLayer::createChunks(const tmx::Map &map, const tmx::TileLayer &layer
     fallback.create(2, 2, sf::Color::Magenta);
     for (const auto &ts : usedTileSets)
     {
-        const auto &path = ts->getImagePath();
-        //std::unique_ptr<sf::Texture> newTexture = std::make_unique<sf::Texture>();
+        const auto &path = ts->getImagePath();        
         std::unique_ptr<sf::Texture> newTexture = std::make_unique<sf::Texture>();
         sf::Image img;
         if (!img.loadFromFile(path))
