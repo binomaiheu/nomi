@@ -41,6 +41,7 @@ link_directories(${EXTERNAL_INSTALL_LOCATION}/lib)
 
 add_executable(nomi
   src/main.cpp
+  src/utils.cpp
   src/game.cpp
   src/scenenode.cpp
   src/entity.cpp
@@ -48,7 +49,7 @@ add_executable(nomi
   src/animation.cpp  
   src/levelmap.cpp
   src/tilemaplayer.cpp
-  src/world.cpp
+  src/world.cpp  
 )
 
 add_dependencies(nomi tmxlite)

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 
+#include "utils.hpp"
 #include "scenenode.hpp"
 
 namespace nomi
@@ -57,5 +58,53 @@ void SceneNode::update( sf::Time dt )
     // update children
     for ( const auto& c : mChildren ) c->update( dt );
 }
+
+sf::Vector2f SceneNode::getWorldPosition() const
+{
+	return getWorldTransform() * sf::Vector2f();
+}
+
+sf::Transform SceneNode::getWorldTransform() const
+{
+	sf::Transform transform = sf::Transform::Identity;
+
+	for (const SceneNode* node = this; node != nullptr; node = node->mParent)
+		transform = node->getTransform() * transform;
+
+	return transform;
+}
+
+void SceneNode::checkSceneCollision(SceneNode& sceneGraph, std::set<Pair>& collisionPairs)
+{
+	checkNodeCollision(sceneGraph, collisionPairs);
+
+	for( auto& child : sceneGraph.mChildren)
+		checkSceneCollision(*child, collisionPairs);
+}
+
+void SceneNode::checkNodeCollision(SceneNode& node, std::set<Pair>& collisionPairs)
+{
+	if (this != &node && collision(*this, node) )
+		collisionPairs.insert(std::minmax(this, &node));
+
+	for ( auto& child : mChildren)
+		child->checkNodeCollision(node, collisionPairs);
+}
+
+sf::FloatRect SceneNode::getBoundingRect() const
+{
+	return sf::FloatRect();
+}
+
+bool collision(const SceneNode& lhs, const SceneNode& rhs)
+{
+	return lhs.getBoundingRect().intersects(rhs.getBoundingRect());
+}
+
+float distance(const SceneNode& lhs, const SceneNode& rhs)
+{
+	return length( lhs.getWorldPosition() - rhs.getWorldPosition() );
+}
+
 
 }

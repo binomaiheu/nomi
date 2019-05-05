@@ -40,7 +40,26 @@ void LevelMap::load_tmx( const std::string& fileName )
 
             case tmx::Layer::Type::Object: 
                 std::cout << "  Adding object layer : " << mMap.getLayers().at(i)->getName() << "\n";
-                
+                const auto& objects = mMap.getLayers().at(i)->getLayerAs<tmx::ObjectGroup>().getObjects();
+                std::cout << "   Found " << objects.size() << " objects in layer" << std::endl;
+                for(const auto& object : objects)
+                {
+                    std::cout << "    Object name= [" << object.getName() 
+                              << "], type = " << object.getType()
+                              << ", x= " << object.getPosition().x 
+                              << ", y= " << object.getPosition().y << "\n";
+                    std::cout << "            aabb : " << object.getAABB().left << ", " << object.getAABB().top << ", " << object.getAABB().width << ", " << object.getAABB().height << "\n";
+                    std::cout << "            points : ( ";
+                    for ( auto& p : object.getPoints() ) std::cout << " ( " << p.x << ", " << p.y << " )";
+                    std::cout << ")\n";
+
+                    const auto& properties = object.getProperties();
+                    std::cout << "     Object has " << properties.size() << " properties" << std::endl;
+                    for(const auto& prop : properties)
+                    {
+                        std::cout << "      Found property: " << prop.getName() << ", type: " << int(prop.getType()) << std::endl;
+                    }
+                }
 
                 break;            
         }
