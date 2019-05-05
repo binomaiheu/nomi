@@ -1,7 +1,7 @@
 NoMi - a little SFML game for educating myself and hopefully someday my kids too ;-)
 (c) 2019 nib
 
-#Credits
+# Credits
 
 This project is inspired by:
 * The SFML Game Development book
