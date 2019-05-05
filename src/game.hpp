@@ -27,6 +27,8 @@ private:
     sf::Time                 mTimePerFrame;
     sf::RenderWindow         mWindow;
     std::unique_ptr<World>   mWorld;
+
+    bool                     mIsPaused;
 };
 
 }

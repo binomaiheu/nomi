@@ -11,6 +11,7 @@ namespace nomi
 Game::Game()
     : mTimePerFrame( sf::seconds(1.f/60.f) )
     , mWindow(sf::VideoMode(1280, 800), "nomi")
+    , mIsPaused( false )
 {
     // create the world...
     mWorld = std::make_unique<World>( mWindow );
@@ -32,7 +33,7 @@ void Game::run(void)
         {
             timeSinceLastUpdate -= mTimePerFrame;   
             processEvents();
-            update( mTimePerFrame );
+            if ( ! mIsPaused ) update( mTimePerFrame ); // only update if not paused...
         }
         render();
     }
@@ -47,6 +48,9 @@ void Game::processEvents(void)
         mWorld->getPlayer().handleEvent(ev);
         
         if ( ev.type == sf::Event::Closed ) mWindow.close();
+
+        if ( ev.type == sf::Event::GainedFocus ) mIsPaused = false;
+        else if ( ev.type == sf::Event::LostFocus ) mIsPaused = true;
     }    
 }
 
