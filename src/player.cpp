@@ -8,7 +8,7 @@
 namespace nomi
 {
 
-player::player(float speed, float jumpHeight)
+Player::Player(float speed, float jumpHeight)
     : mSpeed(speed)
     , mJumpHeight(jumpHeight)
     , mCanJump(true)
@@ -23,25 +23,26 @@ player::player(float speed, float jumpHeight)
     //std::string filename = "share/pixmaps/gnu_from_gnu.png";
     //std::string filename = "share/pixmaps/wilber_from_gimp.png";
     //std::string filename = "share/pixmaps/tux_from_linux.png";
-    //std::string filename = "share/pixmaps/kisi_from_konsolscript.png";
-    if (!mTexture.loadFromFile(filename, sf::IntRect(0, 0, 56, 80) ))
+    if (!mTexture.loadFromFile(filename))
         throw std::runtime_error("Unable to load player texture...");
 
+    // choose the figure via the rectangle...   
     mSprite.setTexture(mTexture);
+    mSprite.setTextureRect( sf::IntRect(0, 0, 56, 80) );
     mSprite.setPosition(50.f, 400.f);
     mSprite.setOrigin(28.,80.); // set origin to the bottom center 
 }
 
-player::~player()
+Player::~Player()
 {
 }
 
-void player::draw(sf::RenderTarget &target, sf::RenderStates states) const
+void Player::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     target.draw(mSprite, states);
 }
 
-void player::update(sf::Time dt)
+void Player::update(sf::Time dt)
 {    
     // every frame we reset the x velocity to 0 as we only need to remember the y velocity to be able to jump between frames
     // however instead of setting it 0, we multiply the current value with a number < 1, this results in an effect where the 
@@ -76,7 +77,7 @@ void player::update(sf::Time dt)
     mVelocity.x > 0 ? mSprite.setScale(1.,1.) : mSprite.setScale(-1.,1.);
 }
 
-void player::handleEvent(const sf::Event &ev)
+void Player::handleEvent(const sf::Event &ev)
 {
 
     switch (ev.type)
@@ -90,7 +91,7 @@ void player::handleEvent(const sf::Event &ev)
     }
 }
 
-void player::handleInput(sf::Keyboard::Key key, bool isPressed)
+void Player::handleInput(sf::Keyboard::Key key, bool isPressed)
 {
     switch (key)
     {
@@ -108,7 +109,7 @@ void player::handleInput(sf::Keyboard::Key key, bool isPressed)
 
 // needed when properly adding collision detection, see : 
 // https://www.youtube.com/watch?v=l2iCYCLi6MU&list=PL21OsoBLPpMOO6zyVlxZ4S4hwkY_SLRW9&index=13
-void player::onCollision( sf::Vector2f direction ) 
+void Player::onCollision( sf::Vector2f direction ) 
 {
     if ( direction.x > 0 ) {
         // collision to the right

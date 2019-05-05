@@ -8,19 +8,19 @@
 namespace nomi
 {
 
-game::game()
+Game::Game()
     : mTimePerFrame( sf::seconds(1.f/60.f) )
     , mWindow(sf::VideoMode(1280, 800), "nomi")
 {
     // create the world...
-    mWorld = std::make_unique<world>( mWindow );
+    mWorld = std::make_unique<World>( mWindow );
 }
 
-game::~game()
+Game::~Game()
 {
 }
 
-void game::run(void)
+void Game::run(void)
 {
     sf::Clock clock;
     sf::Time  timeSinceLastUpdate = sf::Time::Zero;
@@ -38,7 +38,7 @@ void game::run(void)
     }
 }
 
-void game::processEvents(void)
+void Game::processEvents(void)
 {
     sf::Event ev;
     while (mWindow.pollEvent(ev))
@@ -50,12 +50,12 @@ void game::processEvents(void)
     }    
 }
 
-void game::update(sf::Time dt)
+void Game::update(sf::Time dt)
 {
     mWorld->update( dt );
 }
 
-void game::render(void)
+void Game::render(void)
 {    
     mWindow.clear(sf::Color::Black);
 

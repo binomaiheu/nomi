@@ -11,10 +11,10 @@
 namespace nomi {
 
 // main game class for the nomi game
-class game {
+class Game {
 public:
-    game();
-    virtual ~game();
+    Game();
+    virtual ~Game();
 
     void run( void );
 
@@ -26,7 +26,7 @@ private:
 private:
     sf::Time                 mTimePerFrame;
     sf::RenderWindow         mWindow;
-    std::unique_ptr<world>   mWorld;
+    std::unique_ptr<World>   mWorld;
 };
 
 }

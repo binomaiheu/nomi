@@ -27,7 +27,7 @@ int main( int argc, char *argv[] )
   }
 
   // start game
-  nomi::game app;
+  nomi::Game app;
   app.run();
 
   return EXIT_SUCCESS;

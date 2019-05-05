@@ -11,11 +11,11 @@
 namespace nomi
 {
 
-class player : public sf::Drawable, public sf::Transformable
+class Player : public sf::Drawable, public sf::Transformable
 {
 public:
-    player(float speed, float jumpHeight);
-    virtual ~player();
+    Player(float speed, float jumpHeight);
+    virtual ~Player();
 
     void handleEvent( const sf::Event& ev );
     void handleInput(sf::Keyboard::Key key, bool isPressed);

@@ -3,7 +3,7 @@
 namespace nomi
 {
 
-world::world( sf::RenderWindow& window )
+World::World( sf::RenderWindow& window )
 : mWindow( window )
 , mWorldView( window.getDefaultView() )
 , mWorldBounds( 0., 0., mWorldView.getSize().x, mWorldView.getSize().y ) // default, overwrite when map is loaded
@@ -16,10 +16,11 @@ world::world( sf::RenderWindow& window )
 
     // load textures & map
     mMap.load("share/tilemaps/tilemap2.tmx");
-    layerZero = std::make_shared<MapLayer>(mMap, 0);
-        
-
     
+    mLevelMap.load_tmx( "share/tilemaps/tilemap2.tmx" );
+    
+    // TODO : where do we want the textures ???
+
     // TODO
     // set the mWorldBounds to the map size...
     
@@ -29,20 +30,32 @@ world::world( sf::RenderWindow& window )
     mClock.restart();
 }
 
-world::~world()
+World::~World()
 {}
 
+void World::loadTextures()
+{
+    mTextures.load( "Kit",    "share/pixmaps/kit_from_firefox.png" );
+    mTextures.load( "Gnu",    "share/pixmaps/gnu_from_firefox.png" );
+    mTextures.load( "Wilber", "share/pixmaps/wilber_from_firefox.png" );
+    mTextures.load( "Tux",    "share/pixmaps/tux_from_firefox.png" );
+
+    return;
+}
+
+
 // updates the worldm viewport etc...
-void world::update( sf::Time dt )
+void World::update( sf::Time dt )
 {
     // update the world
     //layerZero->update( mClock.getElapsedTime() );
 
     // update the player..
     mPlayer.update( dt );
-    std::cout << "player position  : " << mPlayer.getPosition().x << "x" << mPlayer.getPosition().y << "\n";
-    std::cout << "worldview center : " << mWorldView.getCenter().x << "x" << mWorldView.getCenter().y << "\n";
-    std::cout << "          size   : " << mWorldView.getSize().x << "x" << mWorldView.getSize().y << "\n";
+    
+    //std::cout << "player position  : " << mPlayer.getPosition().x << "x" << mPlayer.getPosition().y << "\n";
+    //std::cout << "worldview center : " << mWorldView.getCenter().x << "x" << mWorldView.getCenter().y << "\n";
+    //std::cout << "          size   : " << mWorldView.getSize().x << "x" << mWorldView.getSize().y << "\n";
      
     float xminWorld = mWorldView.getCenter().x - mWorldView.getSize().x / 2.;
     float xmaxWorld = mWorldView.getCenter().x + mWorldView.getSize().x / 2.;
@@ -50,11 +63,11 @@ void world::update( sf::Time dt )
     // update the viewport... depending on the player position...    
     float edge_fraction = 0.30; // start scrolling at a fraction fro the edge
 
-    if ( ( ( xminWorld > 0 )  && 
+    if ( ( ( xminWorld > mLevelMap.xmin() )  && 
         ( mPlayer.getPosition().x < xminWorld + edge_fraction * mWorldView.getSize().x ) ) )
         mWorldView.move( mPlayer.getPosition().x - ( xminWorld + edge_fraction * mWorldView.getSize().x ) , 0. );
 
-    if ( ( ( xmaxWorld < ( mMap.getBounds().left + mMap.getBounds().width ) )  && 
+    if ( ( ( xmaxWorld <  mLevelMap.xmax() )  && 
         ( mPlayer.getPosition().x > xmaxWorld - edge_fraction * mWorldView.getSize().x ) ) )
         mWorldView.move( mPlayer.getPosition().x - ( xmaxWorld - edge_fraction * mWorldView.getSize().x ) , 0. );
         
@@ -66,13 +79,14 @@ void world::update( sf::Time dt )
 }
 
 // draw the world...
-void world::draw()
+void World::draw()
 {
     // set the view
     mWindow.setView( mWorldView );
 
-    // draw the world...
-    mWindow.draw(*layerZero);  // maplayer
+    // draw the level map
+    mWindow.draw(mLevelMap);  // tilemaplayer
+    
     mWindow.draw(mPlayer);     // the player
 }
 

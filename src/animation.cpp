@@ -3,11 +3,11 @@
 namespace nomi
 {
 
-animation::animation( const sf::Texture& tx, sf::Vector2u imSize, sf::Time frameTime )
+Animation::Animation( const sf::Texture& tx, sf::Vector2u imSize, sf::Time frameTime )
 {
 }
 
-animation::~animation()
+Animation::~Animation()
 {
 }
 

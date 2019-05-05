@@ -6,22 +6,22 @@
 #include <tmxlite/Map.hpp>
 
 #include "player.hpp"
-#include "tmxlayer.hpp"
-#include "tilemap.hpp"
+#include "levelmap.hpp"
+#include "resourcemgr.hpp"
 
 namespace nomi
 {
 
-class world : private sf::NonCopyable
+class World : private sf::NonCopyable
 {
 public:
-    world( sf::RenderWindow& window );
-    virtual ~world();
+    World( sf::RenderWindow& window );
+    virtual ~World();
 
     void update( sf::Time dt );
     void draw();
 
-    player& getPlayer() { return mPlayer; } // needed for handleEvent --> better way to do this ??
+    Player& getPlayer() { return mPlayer; } // needed for handleEvent --> better way to do this ??
 
 private:
     sf::RenderWindow& mWindow;
@@ -29,13 +29,17 @@ private:
     sf::FloatRect     mWorldBounds;
     sf::Vector2f      mSpawnPosition;
     
-    player            mPlayer;
+    Player            mPlayer;
 
     sf::Clock         mClock;
 
     tmx::Map          mMap;
-    std::shared_ptr<MapLayer> layerZero;
-    std::unique_ptr<tilemap>  mTileMap;
+    LevelMap          mLevelMap;
+    
+    ResourceMgr<sf::Texture, std::string> mTextures;
+
+private: 
+    void loadTextures();
 };
 
 

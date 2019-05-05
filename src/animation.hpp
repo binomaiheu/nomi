@@ -5,11 +5,11 @@
 namespace nomi
 {
 
-class animation
+class Animation
 {
 public:
-    animation( const sf::Texture& tx, sf::Vector2u imSize, sf::Time switchTime );
-    virtual ~animation();
+    Animation( const sf::Texture& tx, sf::Vector2u imSize, sf::Time switchTime );
+    virtual ~Animation();
 
 
 };

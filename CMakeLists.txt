@@ -46,7 +46,8 @@ add_executable(nomi
   src/game.cpp
   src/player.cpp
   src/animation.cpp  
-  src/tilemap.cpp
+  src/levelmap.cpp
+  src/tilemaplayer.cpp
   src/world.cpp
 )
 
