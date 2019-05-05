@@ -71,12 +71,8 @@ void World::update( sf::Time dt )
     if ( ( ( xmaxWorld <  mLevelMap.xmax() )  && 
         ( mPlayer.getPosition().x > xmaxWorld - edge_fraction * mWorldView.getSize().x ) ) )
         mWorldView.move( mPlayer.getPosition().x - ( xmaxWorld - edge_fraction * mWorldView.getSize().x ) , 0. );
-        
 
-
-
-    //mWorldView.move( 5.*dt.asSeconds(), 0. ); // just scroll...
-    
+    //mWorldView.move( 5.*dt.asSeconds(), 0. ); // just scroll...    
 }
 
 // draw the world...

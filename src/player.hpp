@@ -20,8 +20,6 @@ public:
     void updateCurrent( sf::Time dt );
     void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 
-    //sf::Vector2f getPosition() { return mSprite.getPosition(); } // should update this
-
 private:
     sf::Texture mTexture;
     sf::Sprite mSprite;
@@ -30,8 +28,6 @@ private:
     float mJumpHeight;
     bool  mCanJump; // player is allowed to jump
     float mWeight;  // how heavy are we ?
-    
-    //sf::Vector2f mVelocity; // player velocity
 
     bool mIsMovingLeft;
     bool mIsMovingRight;

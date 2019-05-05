@@ -42,7 +42,6 @@ Player::~Player()
 
 void Player::drawCurrent(sf::RenderTarget &target, sf::RenderStates states) const
 {
-
     // transforms are handled in the draw() method of SceneNode, so just draw the sprites or other..
     target.draw(mSprite, states);
 }
