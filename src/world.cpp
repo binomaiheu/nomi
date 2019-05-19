@@ -72,7 +72,12 @@ void World::update( sf::Time dt )
         ( mPlayer.getPosition().x > xmaxWorld - edge_fraction * mWorldView.getSize().x ) ) )
         mWorldView.move( mPlayer.getPosition().x - ( xmaxWorld - edge_fraction * mWorldView.getSize().x ) , 0. );
 
-    //mWorldView.move( 5.*dt.asSeconds(), 0. ); // just scroll...    
+    //mWorldView.move( 5.*dt.asSeconds(), 0. ); // just scroll...   
+
+
+    handleCollisions();
+
+
 }
 
 // draw the world...
@@ -83,8 +88,28 @@ void World::draw()
 
     // draw the level map
     mWindow.draw(mLevelMap);  // tilemaplayer
-    
+ 
     mWindow.draw(mPlayer);     // the player
 }
 
+void World::handleCollisions()
+{
+    std::set<SceneNode::Pair> collisions;
+
+    // for now... check collisions between player and the object        
+    mPlayer.checkSceneCollision( mLevelMap.objectTree(), collisions );
+
+    //resolve collision for each pair
+	for (const auto& pair : collisions)
+	{
+        std::cout << "collision !!!\n";
+    
+    	//auto man = getManifold(pair);
+		//pair.second->resolve(man, pair.first);
+		//man.z = -man.z;
+		//pair.first->resolve(man, pair.second);
+	}
 }
+
+
+} // namespace

@@ -50,6 +50,7 @@ add_executable(nomi
   src/levelmap.cpp
   src/tilemaplayer.cpp
   src/world.cpp  
+  src/solid.cpp
 )
 
 add_dependencies(nomi tmxlite)

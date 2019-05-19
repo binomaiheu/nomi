@@ -20,6 +20,9 @@ public:
     void updateCurrent( sf::Time dt );
     void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 
+
+    sf::FloatRect getBoundingRect() const;
+    
 private:
     sf::Texture mTexture;
     sf::Sprite mSprite;

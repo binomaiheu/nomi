@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="50" height="13" tilewidth="64" tileheight="64" infinite="0" nextlayerid="6" nextobjectid="11">
+<map version="1.2" tiledversion="1.2.3" orientation="orthogonal" renderorder="right-down" width="50" height="13" tilewidth="64" tileheight="64" infinite="0" nextlayerid="6" nextobjectid="12">
  <tileset firstgid="1" source="tilesets/tileset.tsx"/>
  <layer id="5" name="Parallax" width="50" height="13">
   <data encoding="csv">
@@ -35,16 +35,10 @@
 38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38,38
 </data>
  </layer>
- <objectgroup id="4" name="Objects">
-  <object id="2" type="platform" x="512" y="450" width="190" height="62"/>
-  <object id="5" x="783" y="322">
+ <objectgroup id="4" name="solids">
+  <object id="2" type="solid" x="512" y="450" width="190" height="62"/>
+  <object id="5" type="solid" x="783" y="322">
    <polygon points="3,-1 161,-2 176,7 176,50 166,59 0,60 -13,49 -13,10"/>
-  </object>
-  <object id="6" x="578" y="251">
-   <point/>
-  </object>
-  <object id="7" x="677" y="272" width="88" height="43" visible="0">
-   <ellipse/>
   </object>
  </objectgroup>
 </map>

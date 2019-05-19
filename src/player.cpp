@@ -82,6 +82,12 @@ void Player::updateCurrent(sf::Time dt)
     Entity::updateCurrent( dt );
 }
 
+
+sf::FloatRect Player::getBoundingRect() const
+{
+    return getWorldTransform().transformRect(mSprite.getGlobalBounds());
+}
+
 void Player::handleEvent(const sf::Event &ev)
 {
 

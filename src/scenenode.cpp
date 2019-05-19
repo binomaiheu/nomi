@@ -1,3 +1,4 @@
+#include <iostream>
 #include <algorithm>
 #include <cassert>
 
@@ -7,7 +8,8 @@
 namespace nomi
 {
 
-SceneNode::SceneNode()
+SceneNode::SceneNode( SceneNode::Type type )
+    : mType( type )
 {    
 }
 
@@ -84,6 +86,15 @@ void SceneNode::checkSceneCollision(SceneNode& sceneGraph, std::set<Pair>& colli
 
 void SceneNode::checkNodeCollision(SceneNode& node, std::set<Pair>& collisionPairs)
 {
+
+    /*
+    std::cout << "Checking collision between this node at : (" 
+              << this->getPosition().x << ", " << this->getPosition().y 
+              << ") and node at position "<< node.getPosition().x << ", " << node.getPosition().y << ") \n";
+    std::cout << " --> this rect: " << this->getBoundingRect().left << ", " << this->getBoundingRect().top << ", " << this->getBoundingRect().width << ", " << this->getBoundingRect().height << "\n"; 
+    std::cout << " --> node rect: " << node.getBoundingRect().left << ", " << node.getBoundingRect().top << ", " << node.getBoundingRect().width << ", " << node.getBoundingRect().height << "\n";     
+    */
+   
 	if (this != &node && collision(*this, node) )
 		collisionPairs.insert(std::minmax(this, &node));
 

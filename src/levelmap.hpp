@@ -10,6 +10,7 @@
 #include <tmxlite/detail/Log.hpp>
 
 #include "tilemaplayer.hpp"
+#include "scenenode.hpp"
 
 // format  : http://doc.mapeditor.org/en/stable/reference/tmx-map-format
 // example : https://www.sfml-dev.org/tutorials/2.5/graphics-vertex-array.php 
@@ -33,6 +34,9 @@ public:
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+    // need to move the object to the world !
+    SceneNode& objectTree( ) { return mObjectTree; }
+
 private:
     sf::VertexArray mVertices;
     sf::Texture     mTilesetTextures;
@@ -40,6 +44,7 @@ private:
     tmx::Map        mMap;
     std::vector<std::unique_ptr<TileMapLayer>> mTileMapLayers;
     //std::vector<std::unique_ptr<ObjectLayer>>  mObjectLayers;    
+    SceneNode      mObjectTree;
 };
 
 } // namespace

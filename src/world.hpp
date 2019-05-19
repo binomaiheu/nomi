@@ -3,6 +3,7 @@
 #include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
+#include "scenenode.hpp"
 #include "player.hpp"
 #include "levelmap.hpp"
 #include "resourcemgr.hpp"
@@ -37,6 +38,7 @@ private:
 
 private: 
     void loadTextures();
+    void handleCollisions();
 };
 
 
