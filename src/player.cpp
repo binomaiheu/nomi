@@ -88,6 +88,18 @@ sf::FloatRect Player::getBoundingRect() const
     return getWorldTransform().transformRect(mSprite.getGlobalBounds());
 }
 
+void Player::resolveCollision( const sf::Vector3f& man, const SceneNode& other )
+{
+    std::cout << "Collide with: " << other.getType() << "\n";
+    std::cout << "Manifold : " << man.x << ", " << man.y << ", " << man.z << "\n";
+    if ( fabs(man.x) > 1.e-8  ) {
+        std::cout << " --> from " << ( man.x < 0 ? "right\n" : "left\n" );
+    } 
+    if ( fabs(man.y) > 1.e-8 ) {
+        std::cout << " --> from " << ( man.y < 0 ? "top\n" : "bottom\n" );
+    }
+}
+
 void Player::handleEvent(const sf::Event &ev)
 {
 

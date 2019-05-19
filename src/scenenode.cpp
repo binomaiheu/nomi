@@ -94,7 +94,7 @@ void SceneNode::checkNodeCollision(SceneNode& node, std::set<Pair>& collisionPai
     std::cout << " --> this rect: " << this->getBoundingRect().left << ", " << this->getBoundingRect().top << ", " << this->getBoundingRect().width << ", " << this->getBoundingRect().height << "\n"; 
     std::cout << " --> node rect: " << node.getBoundingRect().left << ", " << node.getBoundingRect().top << ", " << node.getBoundingRect().width << ", " << node.getBoundingRect().height << "\n";     
     */
-   
+
 	if (this != &node && collision(*this, node) )
 		collisionPairs.insert(std::minmax(this, &node));
 
@@ -106,6 +106,12 @@ sf::FloatRect SceneNode::getBoundingRect() const
 {
 	return sf::FloatRect();
 }
+
+void SceneNode::resolveCollision( const sf::Vector3f& man, const SceneNode& other )
+{
+    // do nothing here, resolve in the dauther class
+}
+
 
 bool collision(const SceneNode& lhs, const SceneNode& rhs)
 {

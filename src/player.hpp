@@ -23,6 +23,8 @@ public:
 
     sf::FloatRect getBoundingRect() const;
     
+    void resolveCollision( const sf::Vector3f& man, const SceneNode& other );
+
 private:
     sf::Texture mTexture;
     sf::Sprite mSprite;

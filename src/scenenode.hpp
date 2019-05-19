@@ -20,8 +20,8 @@ public:
     // categorisaion for the SceneNodes --> can add different types of scene nodes here...
     enum Type {
         None     = 0,        // no type        
-        MapLayer = 1 << 1,   // a map tile layer
-        Solid    = 1 << 2    // a solid object
+        MapLayer = 1 << 0,   // a map tile layer
+        Solid    = 1 << 1    // a solid object
     };
 
 public: 
@@ -41,7 +41,9 @@ public:
 
     virtual sf::FloatRect   getBoundingRect() const;
 
-    unsigned int getType( void ) const { return mType; }
+    unsigned int            getType( void ) const { return mType; }
+
+    virtual void            resolveCollision( const sf::Vector3f& man, const SceneNode& other );
 
 private:
     virtual void draw( sf::RenderTarget& target, sf::RenderStates states ) const;    

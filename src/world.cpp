@@ -3,6 +3,31 @@
 namespace nomi
 {
 
+// helper function 
+sf::Vector3f getManifold(const SceneNode::Pair& node)
+{
+    const auto normal = node.second->getWorldPosition() - node.first->getWorldPosition();
+    sf::FloatRect overlap;
+
+    node.first->getBoundingRect().intersects(node.second->getBoundingRect(), overlap);
+
+    sf::Vector3f manifold;
+
+    // decide whether to label this a collision from the left of right
+    if (overlap.width < overlap.height)
+    {
+        manifold.x = (normal.x < 0) ? -1.f : 1.f;  // collision from the left of right
+        manifold.z = overlap.width;                // penetration depth
+    }
+    else
+    {
+        manifold.y = (normal.y < 0) ? -1.f : 1.f;  // collision from the top or bottom
+        manifold.z = overlap.height;               // penetration depth
+    }
+
+    return manifold;
+}
+
 World::World( sf::RenderWindow& window )
 : mWindow( window )
 , mWorldView( window.getDefaultView() )
@@ -101,13 +126,11 @@ void World::handleCollisions()
 
     //resolve collision for each pair
 	for (const auto& pair : collisions)
-	{
-        std::cout << "collision !!!\n";
-    
-    	//auto man = getManifold(pair);
-		//pair.second->resolve(man, pair.first);
-		//man.z = -man.z;
-		//pair.first->resolve(man, pair.second);
+	{        
+    	auto man = getManifold(pair);
+		pair.second->resolveCollision(man, *(pair.first));
+		man.z = -man.z;
+		pair.first->resolveCollision(man, *(pair.second));
 	}
 }
 
