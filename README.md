@@ -2,7 +2,6 @@ NoMi - a little SFML game for educating myself and hopefully someday my kids too
 (c) 2019 nib
 
 # Credits
-
 This project is inspired by:
 * The SFML Game Development book, see: https://github.com/SFML/SFML-Game-Development-Book/
 * https://github.com/MORTAL2000/Simple-Super-Mario-
@@ -10,8 +9,6 @@ This project is inspired by:
 * The tmxlite SFML loader : https://github.com/fallahn/tmxlite/blob/master/SFMLExample/src/SFMLOrthogonalLayer.hpp 
 
 # Map generation
-
-
 * tiled maps : http://doc.mapeditor.org/en/stable/
 * tmx format : http://doc.mapeditor.org/en/stable/reference/tmx-map-format/#
 
@@ -27,3 +24,6 @@ This project is inspired by:
 * https://www.randygaul.net/2013/03/28/custom-physics-engine-part-2-manifold-generation/
 * example of tiled + 2d scroller : https://github.com/MORTAL2000/Simple-Super-Mario-
 * make use of Box2d ??
+
+# Status / TODO
+* move the mLevelMap directly into world, broken up by type --> use scenenode to render the background : this makes paralaxx background easier !!!

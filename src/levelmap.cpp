@@ -1,6 +1,7 @@
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
+#include "solid.hpp"
 #include "levelmap.hpp"
 
 namespace nomi
@@ -40,7 +41,23 @@ void LevelMap::load_tmx( const std::string& fileName )
 
             case tmx::Layer::Type::Object: 
                 std::cout << "  Adding object layer : " << mMap.getLayers().at(i)->getName() << "\n";
-                
+                const auto& objects = mMap.getLayers().at(i)->getLayerAs<tmx::ObjectGroup>().getObjects();
+                //mObjectLayers.push_back( std::move( std::make_unique<ObjectLayer>( mMap.getLayers().at(i)->getLayerAs<tmx::ObjectGroup>() ) ) );
+                std::cout << "   Found " << objects.size() << " objects in layer" << std::endl;
+                for(const auto& object : objects)
+                {
+	                
+                    mObjectTree.attachChild( std::move( std::make_unique<Solid>(object) ) );
+
+                    /*
+                    const auto& properties = object.getProperties();
+                    std::cout << "     Object has " << properties.size() << " properties" << std::endl;
+                    for(const auto& prop : properties)
+                    {
+                        std::cout << "      Found property: " << prop.getName() << ", type: " << int(prop.getType()) << std::endl;
+                    }                    
+                    */
+                }
 
                 break;            
         }
@@ -62,6 +79,9 @@ void LevelMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
     for ( const auto& lyr : mTileMapLayers ) {
         target.draw( *lyr );
     }
+
+    // drzw object layer ?
+    target.draw( mObjectTree );
 }
 
 } // namespace nomi
