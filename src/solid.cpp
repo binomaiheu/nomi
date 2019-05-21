@@ -19,8 +19,7 @@ Solid::Solid( const tmx::Object &obj )
                     for ( auto& p : obj.getPoints() ) std::cout << " ( " << p.x << ", " << p.y << " )";
                     std::cout << ")\n";
 
-    // set the position
-    setPosition( { obj.getPosition().x, obj.getPosition().y } );
+
 
     // set the shape
     if ( ( obj.getAABB().width > 0 ) && ( obj.getAABB().height > 0 ) ) {
@@ -52,6 +51,13 @@ Solid::Solid( const tmx::Object &obj )
     mShape->setOutlineColor(sf::Color::Red);
     mShape->setFillColor( sf::Color::Transparent );
     mShape->setOutlineThickness(1);
+
+
+    // set the origin to the shape center
+    sf::FloatRect bounds{mShape->getLocalBounds()};
+    mShape->setOrigin(bounds.width /2.f, bounds.height /2.f);
+    // adjust position accordingly    
+    setPosition( { obj.getPosition().x+bounds.width /2.f, obj.getPosition().y+bounds.height /2.f } );
 }
 
 Solid::~Solid()

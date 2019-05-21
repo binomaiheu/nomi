@@ -90,14 +90,32 @@ sf::FloatRect Player::getBoundingRect() const
 
 void Player::resolveCollision( const sf::Vector3f& man, const SceneNode& other )
 {
-    std::cout << "Collide with: " << other.getType() << "\n";
-    std::cout << "Manifold : " << man.x << ", " << man.y << ", " << man.z << "\n";
-    if ( fabs(man.x) > 1.e-8  ) {
-        std::cout << " --> from " << ( man.x < 0 ? "right\n" : "left\n" );
-    } 
-    if ( fabs(man.y) > 1.e-8 ) {
-        std::cout << " --> from " << ( man.y < 0 ? "top\n" : "bottom\n" );
-    }
+    //std::cout << "Collide with: " << other.getType() << "\n";
+    //std::cout << "Manifold : " << man.x << ", " << man.y << ", " << man.z << "\n";
+    //if ( fabs(man.x) > 1.e-6  ) {
+    //    std::cout << " --> from " << ( man.x < 0 ? "right\n" : "left\n" );
+    //} 
+    //if ( fabs(man.y) > 1.e-6 ) {
+    //    std::cout << " --> from " << ( man.y < 0 ? "top\n" : "bottom\n" );
+    //}
+
+    if (man.x != 0.f)  // side collision
+	{
+		move( sf::Vector2f(man.x, man.y) * man.z );
+        auto v = getVelocity();
+        v.x = 0;
+		setVelocity(v);
+	} 
+    else if ( man.y != 0 ) // top or bottom collision
+	{		
+		move(sf::Vector2f(man.x, man.y) * man.z);			
+        auto v = getVelocity();
+        v.y = 0.;
+    	setVelocity(v);	
+        
+        // we are on top, allow jumping again
+        if ( man.y == 1.f ) mCanJump = true; 
+	}
 }
 
 void Player::handleEvent(const sf::Event &ev)

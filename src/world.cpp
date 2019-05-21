@@ -9,9 +9,13 @@ sf::Vector3f getManifold(const SceneNode::Pair& node)
     const auto normal = node.second->getWorldPosition() - node.first->getWorldPosition();
     sf::FloatRect overlap;
 
+    std::cout << "1. pos x="<<node.first->getWorldPosition().x<<", y="<<node.first->getWorldPosition().y<<"\n";
+    std::cout << "2. pos x="<<node.second->getWorldPosition().x<<", y="<<node.second->getWorldPosition().y<<"\n";
+    std::cout << "normal x="<<normal.x<<", y="<<normal.y<<"\n";
+
     node.first->getBoundingRect().intersects(node.second->getBoundingRect(), overlap);
 
-    sf::Vector3f manifold;
+    sf::Vector3f manifold(0,0,0);
 
     // decide whether to label this a collision from the left of right
     if (overlap.width < overlap.height)
