@@ -1,5 +1,5 @@
 NoMi - a little SFML game for educating myself and hopefully someday my kids too ;-)
-(c) 2019 nib
+(c) 2019 Bino Maiheu
 
 # Credits
 This project is inspired by:
