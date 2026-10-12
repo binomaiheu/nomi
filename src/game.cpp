@@ -1,70 +1,93 @@
 #include "game.hpp"
-#include "world.hpp"
+#include "states.hpp"
+#include "utils.hpp"
 
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/System/Vector2.hpp>
 
 namespace nomi
 {
 
-Game::Game()
-    : mTimePerFrame( sf::seconds(1.f/60.f) )
-    , mWindow(sf::VideoMode(1280, 800), "nomi")
+Game::Game( const Options& opts )
+    : mOptions( opts )
+    , mTimePerFrame( sf::seconds(1.f/60.f) )
+    , mStates( mContext )
     , mIsPaused( false )
 {
-    // create the world...
-    mWorld = std::make_unique<World>( mWindow );
+    gDebugDraw = opts.debug;
+    mContext.firstLevel = opts.level.empty() ? dataPath( "levels/level1.tmx" ) : opts.level;
+    if ( opts.autotest ) return;   // no window needed
+
+    mWindow.create( sf::VideoMode( { 1280u, 800u } ), "nomi" );
+    mWindow.setVerticalSyncEnabled( true );
+    mWindow.setKeyRepeatEnabled( false );
+    mContext.window = &mWindow;
+    updateViewport();
+
+    // --level goes straight into the game, otherwise start at the title screen
+    if ( opts.level.empty() ) {
+        mStates.push<TitleState>();
+    } else {
+        mContext.session.reset( 0 );
+        mStates.push<PlayingState>( mContext.firstLevel );
+    }
+    mStates.applyPending();
 }
 
 Game::~Game()
 {
 }
 
-void Game::run(void)
+int Game::run(void)
 {
+    if ( mOptions.autotest ) return runAutotest( mContext.firstLevel );
+
     sf::Clock clock;
     sf::Time  timeSinceLastUpdate = sf::Time::Zero;
-    while (mWindow.isOpen())
-    {        
+    while ( mWindow.isOpen() && !mStates.empty() )
+    {
         processEvents();
         timeSinceLastUpdate += clock.restart();
-        while ( timeSinceLastUpdate > mTimePerFrame ) 
+        // fixed time step : the game logic always advances in steps of 1/60 s
+        while ( timeSinceLastUpdate > mTimePerFrame )
         {
-            timeSinceLastUpdate -= mTimePerFrame;   
+            timeSinceLastUpdate -= mTimePerFrame;
             processEvents();
-            if ( ! mIsPaused ) update( mTimePerFrame ); // only update if not paused...
+            if ( ! mIsPaused ) mStates.update( mTimePerFrame ); // only update if not paused...
         }
         render();
     }
+    return 0;
 }
 
 void Game::processEvents(void)
 {
-    sf::Event ev;
-    while (mWindow.pollEvent(ev))
+    while ( const std::optional<sf::Event> ev = mWindow.pollEvent() )
     {
-        // call entity event handlers
-        mWorld->getPlayer().handleEvent(ev);
-        
-        if ( ev.type == sf::Event::Closed ) mWindow.close();
+        if ( ev->is<sf::Event::Closed>() ) mWindow.close();
+        else if ( ev->is<sf::Event::Resized>() ) updateViewport();
+        else if ( ev->is<sf::Event::FocusGained>() ) mIsPaused = false;
+        else if ( ev->is<sf::Event::FocusLost>() ) mIsPaused = true;
 
-        if ( ev.type == sf::Event::GainedFocus ) mIsPaused = false;
-        else if ( ev.type == sf::Event::LostFocus ) mIsPaused = true;
-    }    
+        mStates.handleEvent( *ev );
+    }
 }
 
-void Game::update(sf::Time dt)
+void Game::updateViewport(void)
 {
-    mWorld->update( dt );
+    // keep the logical 1280x800 screen, add black bars when the window has another aspect ratio
+    const sf::Vector2f win( mWindow.getSize() );
+    const float scale = std::min( win.x / mContext.viewSize.x, win.y / mContext.viewSize.y );
+    const sf::Vector2f vp( mContext.viewSize.x * scale / win.x, mContext.viewSize.y * scale / win.y );
+
+    sf::View view( sf::FloatRect( { 0.f, 0.f }, mContext.viewSize ) );
+    view.setViewport( sf::FloatRect( { ( 1.f - vp.x ) / 2.f, ( 1.f - vp.y ) / 2.f }, vp ) );
+    mWindow.setView( view );
 }
 
 void Game::render(void)
-{    
-    mWindow.clear(sf::Color::Black);
-
-    mWorld->draw();
-
+{
+    mWindow.clear( sf::Color::Black );
+    mStates.draw( mWindow );
     mWindow.display();
 }
 

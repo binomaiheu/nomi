@@ -1,0 +1,74 @@
+{
+    "automappingRulesFile": "",
+    "commands": [
+        {
+            "arguments": "--level %mapfile",
+            "command": "%projectpath/../../build/Release/nomi.exe",
+            "enabled": true,
+            "name": "Play in nomi",
+            "saveBeforeExecute": true,
+            "shortcut": "F5",
+            "showOutput": true,
+            "workingDirectory": "%projectpath/../.."
+        }
+    ],
+    "extensionsPath": "extensions",
+    "folders": [
+        ".",
+        "../tilesets"
+    ],
+    "propertyTypes": [
+        {
+            "color": "#ff2fa52f",
+            "drawFill": true,
+            "id": 1,
+            "members": [
+            ],
+            "name": "spawn",
+            "type": "class",
+            "useAs": [ "property", "object", "tile" ]
+        },
+        {
+            "color": "#ffffd700",
+            "drawFill": true,
+            "id": 2,
+            "members": [
+            ],
+            "name": "coin",
+            "type": "class",
+            "useAs": [ "property", "object", "tile" ]
+        },
+        {
+            "color": "#ffff4040",
+            "drawFill": true,
+            "id": 3,
+            "members": [
+                { "name": "speed",  "type": "float",  "value": 90 },
+                { "name": "sprite", "type": "string", "value": "gnu" }
+            ],
+            "name": "enemy",
+            "type": "class",
+            "useAs": [ "property", "object", "tile" ]
+        },
+        {
+            "color": "#ff4080ff",
+            "drawFill": true,
+            "id": 4,
+            "members": [
+            ],
+            "name": "goal",
+            "type": "class",
+            "useAs": [ "property", "object", "tile" ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 5,
+            "members": [
+            ],
+            "name": "solid",
+            "type": "class",
+            "useAs": [ "property", "object" ]
+        }
+    ]
+}

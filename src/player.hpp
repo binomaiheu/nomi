@@ -1,9 +1,10 @@
 #pragma once
 
+#include "animation.hpp"
 #include "entity.hpp"
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 namespace nomi
 {
@@ -11,35 +12,54 @@ namespace nomi
 class Player : public Entity
 {
 public:
-    Player(float speed, float jumpHeight);
+    // what the player wants to do this tick (keyboard, gamepad or the autotest bot)
+    struct Input
+    {
+        bool left  = false;
+        bool right = false;
+        bool jump  = false;   // held down
+    };
+
+    Player( const sf::Texture& sheet, const CollisionMap& map );
     virtual ~Player();
 
-    void handleEvent( const sf::Event& ev );
-    void handleInput(sf::Keyboard::Key key, bool isPressed);
-    
-    void updateCurrent( sf::Time dt );
-    void drawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+    void setInput( const Input& in ) { mInput = in; }
 
+    void respawn( sf::Vector2f position );
+    void bounce();                 // after stomping an enemy
+    void kill();                   // start the death animation
+    void celebrate();              // reached the goal
 
-    sf::FloatRect getBoundingRect() const;
-    
-    void resolveCollision( const sf::Vector3f& man, const SceneNode& other );
+    bool isAlive() const          { return mState == State::Alive; }
+    bool isDying() const          { return mState == State::Dying; }
+    bool deathFinished() const    { return mState == State::Dying && mStateTime > 1.6f; }
+    bool isInvulnerable() const   { return mInvulnerable > 0.f; }
+    bool hasJumped()              { bool j = mJumped; mJumped = false; return j; }
 
-private:
-    sf::Texture mTexture;
-    sf::Sprite mSprite;
-
-    float mSpeed;
-    float mJumpHeight;
-    bool  mCanJump; // player is allowed to jump
-    float mWeight;  // how heavy are we ?
-
-    bool mIsMovingLeft;
-    bool mIsMovingRight;
-    bool mJump;  
+protected:
+    void updateCurrent( sf::Time dt ) override;
+    void drawCurrent( sf::RenderTarget& target, sf::RenderStates states ) const override;
 
 private:
-    void onCollision( sf::Vector2f direction );
+    enum class State { Alive, Dying, Celebrating };
+
+    void updateMovement( float dt );
+    void updateAnimation( sf::Time dt );
+
+    Input       mInput;
+    bool        mJumpWasHeld   = false;
+    float       mCoyote        = 0.f;   // time left to still jump after walking off a ledge
+    float       mJumpBuffer    = 0.f;   // time left for a jump pressed slightly too early
+    bool        mJumping       = false; // rising from a jump (for variable jump height)
+    bool        mJumped        = false; // a jump started this tick (for the sound)
+    float       mInvulnerable  = 0.f;
+    bool        mFacingRight   = true;
+
+    State       mState         = State::Alive;
+    float       mStateTime     = 0.f;
+
+    sf::Sprite  mSprite;
+    Animator    mAnimator;
 };
 
 } // namespace nomi

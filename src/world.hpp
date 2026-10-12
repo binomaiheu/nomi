@@ -1,44 +1,64 @@
 #pragma once
 
-#include <SFML/System/NonCopyable.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
+#include <string>
+#include <vector>
 
-#include "scenenode.hpp"
-#include "player.hpp"
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/View.hpp>
+
 #include "levelmap.hpp"
+#include "player.hpp"
 #include "resourcemgr.hpp"
+#include "scenenode.hpp"
 
 namespace nomi
 {
 
-class World : private sf::NonCopyable
+// things that happened during an update, handled by the game state (sounds, score, lives)
+struct WorldEvent
+{
+    enum Type { Jumped, CoinCollected, EnemyStomped, PlayerKilled, PlayerDied, LevelComplete };
+    Type         type;
+    sf::Vector2f position;
+};
+
+class World
 {
 public:
-    World( sf::RenderWindow& window );
+    // characterSheet : file below share/pixmaps used for the player
+    World( const std::string& levelFile, TextureMgr& textures, const std::string& characterSheet,
+           sf::Vector2f viewSize );
     virtual ~World();
+    World( const World& ) = delete;
+    World& operator=( const World& ) = delete;
 
-    void update( sf::Time dt );
-    void draw();
+    void update( sf::Time dt, const Player::Input& input );
+    void draw( sf::RenderTarget& target ) const;
 
-    Player& getPlayer() { return mPlayer; } // needed for handleEvent --> better way to do this ??
+    std::vector<WorldEvent> pollEvents();
+    void respawnPlayer();
+
+    const LevelMap& level() const   { return mLevelMap; }
+    const Player&   player() const  { return *mPlayer; }
+    sf::Vector2f    spawnPosition() const { return mSpawnPosition; }
+    std::size_t     enemyCount() const;
+    std::vector<sf::FloatRect> enemyBounds() const;
+    std::size_t     coinCount() const;
 
 private:
-    sf::RenderWindow& mWindow;
-    sf::View          mWorldView;
-    sf::FloatRect     mWorldBounds;
-    sf::Vector2f      mSpawnPosition;
-    
-    Player            mPlayer;
-
-    sf::Clock         mClock;
-
-    LevelMap          mLevelMap;
-    
-    ResourceMgr<sf::Texture, std::string> mTextures;
-
-private: 
-    void loadTextures();
+    void buildScene( TextureMgr& textures, const std::string& characterSheet );
     void handleCollisions();
+    void updateCamera( sf::Time dt, bool snap );
+
+    LevelMap                 mLevelMap;
+    sf::View                 mWorldView;
+    sf::Vector2f             mSpawnPosition;
+
+    SceneNode                mSceneGraph;
+    Player*                  mPlayer = nullptr;
+
+    std::vector<WorldEvent>  mEvents;
+    bool                     mLevelDone = false;
 };
 
 

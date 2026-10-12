@@ -10,6 +10,8 @@
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Transformable.hpp>
+#include <SFML/Graphics/View.hpp>
+#include <SFML/Graphics/Image.hpp>
 #include <SFML/System/Time.hpp>
 
 #include <memory>
@@ -68,7 +70,7 @@ private:
     {
     public:
         using Ptr  = std::unique_ptr<Chunk>;
-		using Tile = std::array<sf::Vertex, 4u>;
+		using Tile = std::array<sf::Vertex, 6u>; // two triangles per tile
 
         Chunk( const tmx::TileLayer& layer, std::vector<const tmx::Tileset*> tilesets,
                const sf::Vector2f& position, const sf::Vector2f& tileCount, const sf::Vector2u& tileSize,
@@ -130,7 +132,7 @@ private:
             void draw(sf::RenderTarget& rt, sf::RenderStates states) const override;
         };
 
-        sf::Uint8 layerOpacity;     // opacity of the layer
+        std::uint8_t layerOpacity;     // opacity of the layer
         sf::Vector2f layerOffset;   // Layer offset
         sf::Vector2u mapTileSize;   // general Tilesize of Map
         sf::Vector2f chunkTileCount;   // chunk tilecount
