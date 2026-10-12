@@ -11,7 +11,7 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 project(nomi
-  VERSION 1.0.0
+  VERSION 1.0.2
   DESCRIPTION "A little platformer, levels made with Tiled"
   HOMEPAGE_URL "https://github.com/binomaiheu/nomi"
   LANGUAGES CXX
