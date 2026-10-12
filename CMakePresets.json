@@ -3,8 +3,8 @@
   "configurePresets": [
     {
       "name": "windows",
-      "displayName": "Windows (Visual Studio 2022, x64, DLLs)",
-      "generator": "Visual Studio 17 2022",
+      "displayName": "Windows (newest Visual Studio, x64, DLLs)",
+      "description": "No generator given : CMake picks the newest installed Visual Studio (2022, 2026, ...)",
       "architecture": "x64",
       "binaryDir": "${sourceDir}/build"
     },

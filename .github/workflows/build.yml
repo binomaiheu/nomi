@@ -58,7 +58,10 @@ jobs:
           if (-not (Test-Path "${env:ProgramFiles(x86)}\NSIS\makensis.exe")) { choco install nsis -y --no-progress }
 
       - name: Configure
-        run: cmake --preset windows-static
+        # the presets don't name a Visual Studio version, CMake uses the newest one on the runner
+        run: |
+          cmake --version
+          cmake --preset windows-static
 
       - name: Build
         run: cmake --build --preset package

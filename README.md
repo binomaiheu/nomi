@@ -35,7 +35,7 @@ doctest) are declared in `vcpkg.json` and built automatically on the first confi
 vcpkg is found through `CMAKE_TOOLCHAIN_FILE`, the `VCPKG_ROOT` environment variable, or a `vcpkg`
 checkout next to this project (`../vcpkg`).
 
-On Windows with Visual Studio 2022 (or its Build Tools) :
+On Windows with Visual Studio 2022 or newer (or its Build Tools) :
 
 ```
 cmake --preset windows
