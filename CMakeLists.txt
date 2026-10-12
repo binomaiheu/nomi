@@ -84,3 +84,19 @@ set_target_properties(nomi PROPERTIES
   VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
+if(NOMI_BUILD_TESTS)
+  enable_testing()
+  find_package(doctest CONFIG REQUIRED)
+  add_executable(nomi_tests
+    tests/main.cpp
+    tests/test_collision.cpp
+    tests/test_rules.cpp
+    tests/test_levels.cpp
+  )
+  target_link_libraries(nomi_tests PRIVATE nomi_core doctest::doctest)
+  target_compile_definitions(nomi_tests PRIVATE NOMI_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  add_test(NAME unit_tests COMMAND nomi_tests)
+  # headless playthroughs : the bot has to reach the flag in every level
+  add_test(NAME autotest_level1 COMMAND nomi --autotest --level "${CMAKE_CURRENT_SOURCE_DIR}/share/levels/level1.tmx")
+  add_test(NAME autotest_level2 COMMAND nomi --autotest --level "${CMAKE_CURRENT_SOURCE_DIR}/share/levels/level2.tmx")
+endif()
