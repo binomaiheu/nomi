@@ -1,19 +1,36 @@
 {
-  "version": 3,
+  "version": 6,
   "configurePresets": [
     {
       "name": "windows",
-      "displayName": "Windows (Visual Studio 2022, x64)",
+      "displayName": "Windows (Visual Studio 2022, x64, DLLs)",
       "generator": "Visual Studio 17 2022",
       "architecture": "x64",
       "binaryDir": "${sourceDir}/build"
+    },
+    {
+      "name": "windows-static",
+      "displayName": "Windows release package (static, single nomi.exe)",
+      "inherits": "windows",
+      "binaryDir": "${sourceDir}/build-static",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>",
+        "NOMI_WINDOWED": "ON"
+      }
     }
   ],
   "buildPresets": [
     { "name": "debug",   "configurePreset": "windows", "configuration": "Debug" },
-    { "name": "release", "configurePreset": "windows", "configuration": "Release" }
+    { "name": "release", "configurePreset": "windows", "configuration": "Release" },
+    { "name": "package", "configurePreset": "windows-static", "configuration": "Release" }
   ],
   "testPresets": [
-    { "name": "debug", "configurePreset": "windows", "configuration": "Debug", "output": { "outputOnFailure": true } }
+    { "name": "debug",   "configurePreset": "windows", "configuration": "Debug", "output": { "outputOnFailure": true } },
+    { "name": "package", "configurePreset": "windows-static", "configuration": "Release", "output": { "outputOnFailure": true } }
+  ],
+  "packagePresets": [
+    { "name": "package", "configurePreset": "windows-static", "configurations": [ "Release" ], "generators": [ "ZIP", "NSIS" ] }
   ]
 }

@@ -4,3 +4,4 @@ out/
 vcpkg_installed/
 CMakeUserPresets.json
 *.tiled-session
+build-static/
