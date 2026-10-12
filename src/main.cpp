@@ -4,6 +4,7 @@
 #include <string>
 
 #include "game.hpp"
+#include "utils.hpp"
 
 namespace
 {
@@ -21,6 +22,7 @@ void printHelp( const char* exe )
 
 int main( int argc, char *argv[] )
 {
+    nomi::initDataPath( argv[0] );
     nomi::Game::Options opts;
 
     // parse command line options

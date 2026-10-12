@@ -30,16 +30,24 @@ set_target_properties(tmxlite PROPERTIES
 
 # everything except main() lives in a library so the tests can link it
 add_library(nomi_core STATIC
-  src/utils.cpp
-  src/game.cpp
-  src/scenenode.cpp
-  src/entity.cpp
-  src/player.cpp
   src/animation.cpp
+  src/audio.cpp
+  src/autotest.cpp
+  src/collisionmap.cpp
+  src/enemy.cpp
+  src/entity.cpp
+  src/game.cpp
+  src/hud.cpp
   src/levelmap.cpp
+  src/pickup.cpp
+  src/player.cpp
+  src/scenenode.cpp
+  src/session.cpp
+  src/state.cpp
+  src/states.cpp
   src/tilemaplayer.cpp
+  src/utils.cpp
   src/world.cpp
-  src/solid.cpp
 )
 
 target_include_directories(nomi_core PUBLIC src)
@@ -75,3 +83,4 @@ add_custom_command(TARGET nomi POST_BUILD
 set_target_properties(nomi PROPERTIES
   VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )
+

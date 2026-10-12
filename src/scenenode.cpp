@@ -1,4 +1,3 @@
-#include <iostream>
 #include <algorithm>
 #include <cassert>
 
@@ -26,7 +25,7 @@ void SceneNode::attachChild( std::unique_ptr<SceneNode> child )
 
 std::unique_ptr<SceneNode> SceneNode::detachChild( const SceneNode& node )
 {
-    auto found = std::find_if( mChildren.begin(), mChildren.end(), 
+    auto found = std::find_if( mChildren.begin(), mChildren.end(),
         [&] ( std::unique_ptr<SceneNode>& p ) -> bool { return p.get() == &node; } );
     assert( found  != mChildren.end() );
 
@@ -36,23 +35,37 @@ std::unique_ptr<SceneNode> SceneNode::detachChild( const SceneNode& node )
     return result;
 }
 
-void SceneNode::drawCurrent( sf::RenderTarget& target, sf::RenderStates states ) const 
+void SceneNode::drawCurrent( sf::RenderTarget&, sf::RenderStates ) const
 {
     // do nothing by default needs to be overwritten in derived class
 }
 
-void SceneNode::updateCurrent( sf::Time dt ) 
+void SceneNode::updateCurrent( sf::Time )
 {
     // do nothing by default needs to be overwritten in derived class
 }
 
-
-void SceneNode::draw( sf::RenderTarget& target, sf::RenderStates states ) const 
+void SceneNode::draw( sf::RenderTarget& target, sf::RenderStates states ) const
 {
+    if ( gDebugDraw ) drawBoundingRect( target );
+
     states.transform *= getTransform();
     drawCurrent( target, states ); // draw current node
     // draw children
     for ( const auto& c : mChildren ) c->draw( target, states );
+}
+
+void SceneNode::drawBoundingRect( sf::RenderTarget& target ) const
+{
+    const sf::FloatRect rect = getBoundingRect();
+    if ( rect.size.x <= 0.f || rect.size.y <= 0.f ) return;
+
+    sf::RectangleShape shape( rect.size );
+    shape.setPosition( rect.position );
+    shape.setFillColor( sf::Color::Transparent );
+    shape.setOutlineColor( sf::Color::Green );
+    shape.setOutlineThickness( 1.f );
+    target.draw( shape );
 }
 
 void SceneNode::update( sf::Time dt )
@@ -87,15 +100,6 @@ void SceneNode::checkSceneCollision(SceneNode& sceneGraph, std::set<Pair>& colli
 
 void SceneNode::checkNodeCollision(SceneNode& node, std::set<Pair>& collisionPairs)
 {
-
-    /*
-    std::cout << "Checking collision between this node at : (" 
-              << this->getPosition().x << ", " << this->getPosition().y 
-              << ") and node at position "<< node.getPosition().x << ", " << node.getPosition().y << ") \n";
-    std::cout << " --> this rect: " << this->getBoundingRect().left << ", " << this->getBoundingRect().top << ", " << this->getBoundingRect().width << ", " << this->getBoundingRect().height << "\n"; 
-    std::cout << " --> node rect: " << node.getBoundingRect().left << ", " << node.getBoundingRect().top << ", " << node.getBoundingRect().width << ", " << node.getBoundingRect().height << "\n";     
-    */
-
 	if (this != &node && collision(*this, node) )
 		collisionPairs.insert(std::minmax(this, &node));
 
@@ -103,14 +107,23 @@ void SceneNode::checkNodeCollision(SceneNode& node, std::set<Pair>& collisionPai
 		child->checkNodeCollision(node, collisionPairs);
 }
 
+void SceneNode::removeWrecks()
+{
+    mChildren.erase( std::remove_if( mChildren.begin(), mChildren.end(),
+                         []( const std::unique_ptr<SceneNode>& c ) { return c->isMarkedForRemoval(); } ),
+                     mChildren.end() );
+    for ( auto& c : mChildren ) c->removeWrecks();
+}
+
+void SceneNode::collectBoundingRects( Type type, std::vector<sf::FloatRect>& out ) const
+{
+    if ( mType == type && !isMarkedForRemoval() ) out.push_back( getBoundingRect() );
+    for ( const auto& c : mChildren ) c->collectBoundingRects( type, out );
+}
+
 sf::FloatRect SceneNode::getBoundingRect() const
 {
 	return sf::FloatRect();
-}
-
-void SceneNode::resolveCollision( const sf::Vector3f& man, const SceneNode& other )
-{
-    // do nothing here, resolve in the dauther class
 }
 
 

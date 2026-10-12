@@ -1,50 +1,94 @@
 #pragma once
 
-#include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/Transformable.hpp>
-#include <SFML/Graphics/VertexArray.hpp>
-#include <SFML/Graphics/Texture.hpp>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
 
 #include <tmxlite/Map.hpp>
-#include <tmxlite/TileLayer.hpp>
-#include <tmxlite/detail/Log.hpp>
 
+#include "collisionmap.hpp"
 #include "tilemaplayer.hpp"
-#include "scenenode.hpp"
 
 // format  : http://doc.mapeditor.org/en/stable/reference/tmx-map-format
-// example : https://www.sfml-dev.org/tutorials/2.5/graphics-vertex-array.php 
+//
+// nomi map conventions (see README) :
+//  - tile layer "Ground"        : collision; every tile is solid unless the tile has bool property oneway=true
+//  - other tile layers          : decoration, drawn behind the entities; layers whose name starts with
+//                                 "Foreground" are drawn in front; Tiled's parallax factor is respected
+//  - object layer "solids"      : extra solid rectangles
+//  - object layer "entities"    : objects with class spawn / coin / enemy / goal
+//  - map properties             : name (string), next (file of the next level, relative to this map)
 
 namespace nomi
 {
 
-class LevelMap : public sf::Drawable, public sf::Transformable
+// an object from the "entities" layer
+struct SpawnObject
 {
-public:     
-    LevelMap();    
+    std::string                        cls;     // spawn, coin, enemy, goal
+    sf::FloatRect                      rect;    // in map pixels
+    std::map<std::string, std::string> props;
+
+    std::string str( const std::string& name, const std::string& def = "" ) const;
+    float       num( const std::string& name, float def ) const;
+
+    sf::Vector2f bottomCenter() const { return { rect.position.x + rect.size.x / 2.f, rect.position.y + rect.size.y }; }
+    sf::Vector2f center() const       { return rect.getCenter(); }
+};
+
+class LevelMap
+{
+public:
+    LevelMap();
     ~LevelMap() = default;
 
-    void load_tmx( const std::string& fileName );
-    
-    // get the dimensions 
-    float xmin( void ) { return mMap.getBounds().left; }
-    float ymin( void ) { return mMap.getBounds().top; }
-    float xmax( void ) { return mMap.getBounds().left + mMap.getBounds().width; }
-    float ymax( void ) { return mMap.getBounds().top  + mMap.getBounds().height; }
+    void load( const std::string& fileName );   // throws std::runtime_error on failure
 
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+    // get the dimensions
+    float xmin( void ) const { return 0.f; }
+    float ymin( void ) const { return 0.f; }
+    float xmax( void ) const { return mCollision.pixelWidth(); }
+    float ymax( void ) const { return mCollision.pixelHeight(); }
 
-    // need to move the object to the world !
-    SceneNode& objectTree( ) { return mObjectTree; }
+    void drawBackground( sf::RenderTarget& target ) const;
+    void drawForeground( sf::RenderTarget& target ) const;
+
+    const CollisionMap&             collision() const      { return mCollision; }
+    const std::vector<SpawnObject>& objects() const        { return mObjects; }
+    const std::string&              fileName() const       { return mFileName; }
+    std::string                     property( const std::string& name ) const;
+    std::string                     name() const;
+    std::string                     nextLevel() const;     // full path, empty if this is the last level
+    sf::Color                       backgroundColor() const { return mBackground; }
 
 private:
-    sf::VertexArray mVertices;
-    sf::Texture     mTilesetTextures;
+    struct DrawLayer
+    {
+        std::unique_ptr<TileMapLayer> layer;
+        sf::Vector2f                  parallax { 1.f, 1.f };
+        bool                          foreground = false;
+    };
 
-    tmx::Map        mMap;
-    std::vector<std::unique_ptr<TileMapLayer>> mTileMapLayers;
-    //std::vector<std::unique_ptr<ObjectLayer>>  mObjectLayers;    
-    SceneNode      mObjectTree;
+    void buildCollision( const tmx::TileLayer& layer );
+    void loadObjects( const tmx::ObjectGroup& group, bool solids );
+    void drawLayers( sf::RenderTarget& target, bool foreground ) const;
+
+    std::string                        mFileName;
+    tmx::Map                           mMap;
+    std::vector<DrawLayer>             mLayers;
+    CollisionMap                       mCollision;
+    std::vector<SpawnObject>           mObjects;
+    std::map<std::string, std::string> mProperties;
+    sf::Color                          mBackground { 120, 200, 255 };
+    sf::Vector2f                       mParallaxOrigin;
 };
+
+// helper : the value of a tmx property as a string
+std::string propertyToString( const tmx::Property& p );
 
 } // namespace
