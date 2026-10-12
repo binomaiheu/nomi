@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "world.hpp"
 
 namespace nomi
@@ -7,26 +9,25 @@ namespace nomi
 sf::Vector3f getManifold(const SceneNode::Pair& node)
 {
     const auto normal = node.second->getWorldPosition() - node.first->getWorldPosition();
-    sf::FloatRect overlap;
 
     std::cout << "1. pos x="<<node.first->getWorldPosition().x<<", y="<<node.first->getWorldPosition().y<<"\n";
     std::cout << "2. pos x="<<node.second->getWorldPosition().x<<", y="<<node.second->getWorldPosition().y<<"\n";
     std::cout << "normal x="<<normal.x<<", y="<<normal.y<<"\n";
 
-    node.first->getBoundingRect().intersects(node.second->getBoundingRect(), overlap);
+    const sf::FloatRect overlap = node.first->getBoundingRect().findIntersection(node.second->getBoundingRect()).value_or(sf::FloatRect());
 
     sf::Vector3f manifold(0,0,0);
 
     // decide whether to label this a collision from the left of right
-    if (overlap.width < overlap.height)
+    if (overlap.size.x < overlap.size.y)
     {
         manifold.x = (normal.x < 0) ? -1.f : 1.f;  // collision from the left of right
-        manifold.z = overlap.width;                // penetration depth
+        manifold.z = overlap.size.x;                // penetration depth
     }
     else
     {
         manifold.y = (normal.y < 0) ? -1.f : 1.f;  // collision from the top or bottom
-        manifold.z = overlap.height;               // penetration depth
+        manifold.z = overlap.size.y;               // penetration depth
     }
 
     return manifold;
@@ -35,8 +36,8 @@ sf::Vector3f getManifold(const SceneNode::Pair& node)
 World::World( sf::RenderWindow& window )
 : mWindow( window )
 , mWorldView( window.getDefaultView() )
-, mWorldBounds( 0., 0., mWorldView.getSize().x, mWorldView.getSize().y ) // default, overwrite when map is loaded
-, mSpawnPosition( mWorldView.getSize().x / 2., mWorldBounds.height - 0.2 * mWorldView.getSize().y  )
+, mWorldBounds( { 0.f, 0.f }, mWorldView.getSize() ) // default, overwrite when map is loaded
+, mSpawnPosition( mWorldView.getSize().x / 2.f, mWorldBounds.size.y - 0.2f * mWorldView.getSize().y  )
 , mPlayer( 80.f, 220.f )
 {
     // some window settings
@@ -95,11 +96,11 @@ void World::update( sf::Time dt )
 
     if ( ( ( xminWorld > mLevelMap.xmin() )  && 
         ( mPlayer.getPosition().x < xminWorld + edge_fraction * mWorldView.getSize().x ) ) )
-        mWorldView.move( mPlayer.getPosition().x - ( xminWorld + edge_fraction * mWorldView.getSize().x ) , 0. );
+        mWorldView.move( { mPlayer.getPosition().x - ( xminWorld + edge_fraction * mWorldView.getSize().x ), 0.f } );
 
     if ( ( ( xmaxWorld <  mLevelMap.xmax() )  && 
         ( mPlayer.getPosition().x > xmaxWorld - edge_fraction * mWorldView.getSize().x ) ) )
-        mWorldView.move( mPlayer.getPosition().x - ( xmaxWorld - edge_fraction * mWorldView.getSize().x ) , 0. );
+        mWorldView.move( { mPlayer.getPosition().x - ( xmaxWorld - edge_fraction * mWorldView.getSize().x ), 0.f } );
 
     //mWorldView.move( 5.*dt.asSeconds(), 0. ); // just scroll...   
 

@@ -17,6 +17,7 @@ Player::Player(float speed, float jumpHeight)
     , mIsMovingLeft(false)
     , mIsMovingRight(false)
     , mJump(false)
+    , mSprite(mTexture)
 {
     // only load smaller part    
     std::string filename = "share/pixmaps/kit_from_firefox.png";
@@ -27,13 +28,13 @@ Player::Player(float speed, float jumpHeight)
         throw std::runtime_error("Unable to load player texture...");
 
     // choose the figure via the rectangle...   
-    mSprite.setTexture(mTexture);
-    mSprite.setTextureRect( sf::IntRect(0, 0, 56, 80) );    
-    mSprite.setOrigin(28.,80.); // set origin to the bottom center 
+    mSprite.setTexture(mTexture, true);
+    mSprite.setTextureRect( sf::IntRect({0, 0}, {56, 80}) );    
+    mSprite.setOrigin({28.f, 80.f}); // set origin to the bottom center 
 
     // set spawn positino
     this->setVelocity( 0.f, 0.f );
-    this->setPosition(50.f, 400.f);
+    this->setPosition({50.f, 400.f});
 }
 
 Player::~Player()
@@ -73,7 +74,7 @@ void Player::updateCurrent(sf::Time dt)
     }   
 
     // set direction of the sprite, use setScale, not scale as we want this w.r.t. the original
-    v.x > 0 ? setScale(1.,1.) : setScale(-1.,1.);
+    v.x > 0 ? setScale({1.f, 1.f}) : setScale({-1.f, 1.f});
 
     // update with new velocity
     setVelocity(v);
@@ -121,29 +122,26 @@ void Player::resolveCollision( const sf::Vector3f& man, const SceneNode& other )
 void Player::handleEvent(const sf::Event &ev)
 {
 
-    switch (ev.type)
-    {
-    case sf::Event::KeyPressed:
-        handleInput(ev.key.code, true);
-        break;
-    case sf::Event::KeyReleased:
-        handleInput(ev.key.code, false);
-        break;
-    }
+    if (const auto* key = ev.getIf<sf::Event::KeyPressed>())
+        handleInput(key->code, true);
+    else if (const auto* key = ev.getIf<sf::Event::KeyReleased>())
+        handleInput(key->code, false);
 }
 
 void Player::handleInput(sf::Keyboard::Key key, bool isPressed)
 {
     switch (key)
     {
-    case sf::Keyboard::Left:
+    case sf::Keyboard::Key::Left:
         mIsMovingLeft = isPressed;        
         break;
-    case sf::Keyboard::Right:
+    case sf::Keyboard::Key::Right:
         mIsMovingRight = isPressed;        
         break;
-    case sf::Keyboard::Space:
+    case sf::Keyboard::Key::Space:
         if ( isPressed ) mJump = true;
+        break;
+    default:
         break;
     }
 }

@@ -12,7 +12,7 @@ Solid::Solid( const tmx::Object &obj )
 
     // creating 
     std::cout << "Creating object name= [" << obj.getName() 
-              << "], type = " << obj.getType()
+              << "], type = " << obj.getClass()
               << ", x= " << obj.getPosition().x 
               << ", y= " << obj.getPosition().y << "\n";
                     std::cout << "            aabb : " << obj.getAABB().left << ", " << obj.getAABB().top << ", " << obj.getAABB().width << ", " << obj.getAABB().height << "\n";
@@ -29,7 +29,7 @@ Solid::Solid( const tmx::Object &obj )
         if ( ( obj.getAABB().left != obj.getPosition().x ) || ( obj.getAABB().top != obj.getPosition().y ) )
             throw std::runtime_error( "Coordinates do not match in tmx rectangle shape..." );
 
-        mShape = std::move( std::make_unique<sf::RectangleShape>( sf::Vector2f( obj.getAABB().width, obj.getAABB().height ) ) );
+        mShape = std::make_unique<sf::RectangleShape>( sf::Vector2f( obj.getAABB().width, obj.getAABB().height ) );
     } else if ( ( obj.getAABB().width == 0 ) && ( obj.getAABB().height == 0 ) && 
                 ( obj.getPoints().size() > 2 ) ) {
         // polygon shape
@@ -38,7 +38,7 @@ Solid::Solid( const tmx::Object &obj )
         p.setPointCount( obj.getPoints().size() );
         for ( unsigned int i=0; i<obj.getPoints().size(); i++ ) p.setPoint( i, { obj.getPoints().at(i).x, obj.getPoints().at(i).y } );
 
-        mShape = std::move( std::make_unique<sf::ConvexShape>( p ) );
+        mShape = std::make_unique<sf::ConvexShape>( p );
 
     } else if ( ( obj.getAABB().width == 0 ) && ( obj.getAABB().height == 0 ) && 
                 ( obj.getPoints().size() > 2 ) ) {
@@ -56,9 +56,9 @@ Solid::Solid( const tmx::Object &obj )
 
     // set the origin to the shape center
     sf::FloatRect bounds{mShape->getLocalBounds()};
-    mShape->setOrigin(bounds.width /2.f, bounds.height /2.f);
+    mShape->setOrigin(bounds.size / 2.f);
     // adjust position accordingly    
-    setPosition( { obj.getPosition().x+bounds.width /2.f, obj.getPosition().y+bounds.height /2.f } );
+    setPosition( { obj.getPosition().x+bounds.size.x /2.f, obj.getPosition().y+bounds.size.y /2.f } );
 }
 
 Solid::~Solid()

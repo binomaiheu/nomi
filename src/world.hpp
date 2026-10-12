@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SFML/System/NonCopyable.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 #include "scenenode.hpp"
@@ -11,11 +10,13 @@
 namespace nomi
 {
 
-class World : private sf::NonCopyable
+class World
 {
 public:
     World( sf::RenderWindow& window );
     virtual ~World();
+    World( const World& ) = delete;
+    World& operator=( const World& ) = delete;
 
     void update( sf::Time dt );
     void draw();

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16...3.31)
+cmake_minimum_required(VERSION 3.21...3.31)
 
 # locate the vcpkg toolchain : -DCMAKE_TOOLCHAIN_FILE=... takes precedence, then
 # the VCPKG_ROOT environment variable, then a vcpkg checkout next to this project
@@ -12,9 +12,11 @@ endif()
 
 project(nomi CXX)
 
+option(NOMI_BUILD_TESTS "Build the unit tests" ON)
+
 # dependencies are declared in vcpkg.json
-find_package(SFML 2.5 COMPONENTS system window graphics audio network REQUIRED)
-find_package(Boost REQUIRED COMPONENTS program_options)
+find_package(SFML 3 COMPONENTS Graphics Audio REQUIRED)
+
 # the vcpkg tmxlite port ships no cmake config, locate it by hand
 find_path(TMXLITE_INCLUDE_DIR tmxlite/Map.hpp REQUIRED)
 find_library(TMXLITE_LIBRARY_RELEASE NAMES tmxlite REQUIRED)
@@ -26,8 +28,8 @@ set_target_properties(tmxlite PROPERTIES
   IMPORTED_LOCATION_DEBUG "${TMXLITE_LIBRARY_DEBUG}"
 )
 
-add_executable(nomi
-  src/main.cpp
+# everything except main() lives in a library so the tests can link it
+add_library(nomi_core STATIC
   src/utils.cpp
   src/game.cpp
   src/scenenode.cpp
@@ -40,30 +42,36 @@ add_executable(nomi
   src/solid.cpp
 )
 
-target_compile_features(nomi
-  PRIVATE
-  cxx_std_17
+target_include_directories(nomi_core PUBLIC src)
+
+target_compile_features(nomi_core PUBLIC cxx_std_17)
+
+target_compile_options(nomi_core
+  PUBLIC
+  $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wno-switch -Wno-unused>
+  $<$<CXX_COMPILER_ID:MSVC>:/W3 /utf-8 /wd4244 /wd4267>
 )
 
-target_compile_options(nomi
-  PRIVATE
-  $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wno-switch -Wno-unused>
-  $<$<CXX_COMPILER_ID:MSVC>:/W3 /utf-8>
-)
-
-target_compile_definitions(nomi
-  PRIVATE
+target_compile_definitions(nomi_core
+  PUBLIC
   $<$<CONFIG:Debug>:DEBUG>
 )
 
-target_link_libraries(nomi
-  PRIVATE
-  sfml-graphics sfml-window sfml-system sfml-audio sfml-network
-  Boost::program_options
+target_link_libraries(nomi_core
+  PUBLIC
+  SFML::Graphics SFML::Audio
   tmxlite
 )
 
-# the game loads its assets from share/ relative to the working directory
+add_executable(nomi src/main.cpp)
+target_link_libraries(nomi PRIVATE nomi_core)
+
+# copy the assets next to the executable so it also runs outside the source tree
+add_custom_command(TARGET nomi POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+          "${CMAKE_CURRENT_SOURCE_DIR}/share" "$<TARGET_FILE_DIR:nomi>/share"
+)
+
 set_target_properties(nomi PROPERTIES
   VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 )

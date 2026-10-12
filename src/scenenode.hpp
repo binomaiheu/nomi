@@ -11,8 +11,7 @@
 namespace nomi
 {
 
-class SceneNode : public sf::Transformable, public sf::Drawable,
-                  private sf::NonCopyable
+class SceneNode : public sf::Transformable, public sf::Drawable
 {
 public:
     typedef std::pair<SceneNode*, SceneNode*> Pair;
@@ -27,6 +26,8 @@ public:
 public: 
     explicit SceneNode( SceneNode::Type type = None );
     virtual ~SceneNode();
+    SceneNode( const SceneNode& ) = delete;
+    SceneNode& operator=( const SceneNode& ) = delete;
 
     void attachChild( std::unique_ptr<SceneNode> child );
     std::unique_ptr<SceneNode> detachChild( const SceneNode& node );

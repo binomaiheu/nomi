@@ -8,9 +8,10 @@
 namespace nomi
 {
 
-Game::Game()
-    : mTimePerFrame( sf::seconds(1.f/60.f) )
-    , mWindow(sf::VideoMode(1280, 800), "nomi")
+Game::Game( const Options& opts )
+    : mOptions( opts )
+    , mTimePerFrame( sf::seconds(1.f/60.f) )
+    , mWindow( sf::VideoMode( { 1280u, 800u } ), "nomi" )
     , mIsPaused( false )
 {
     // create the world...
@@ -21,37 +22,37 @@ Game::~Game()
 {
 }
 
-void Game::run(void)
+int Game::run(void)
 {
     sf::Clock clock;
     sf::Time  timeSinceLastUpdate = sf::Time::Zero;
     while (mWindow.isOpen())
-    {        
+    {
         processEvents();
         timeSinceLastUpdate += clock.restart();
-        while ( timeSinceLastUpdate > mTimePerFrame ) 
+        while ( timeSinceLastUpdate > mTimePerFrame )
         {
-            timeSinceLastUpdate -= mTimePerFrame;   
+            timeSinceLastUpdate -= mTimePerFrame;
             processEvents();
             if ( ! mIsPaused ) update( mTimePerFrame ); // only update if not paused...
         }
         render();
     }
+    return 0;
 }
 
 void Game::processEvents(void)
 {
-    sf::Event ev;
-    while (mWindow.pollEvent(ev))
+    while ( const std::optional<sf::Event> ev = mWindow.pollEvent() )
     {
         // call entity event handlers
-        mWorld->getPlayer().handleEvent(ev);
-        
-        if ( ev.type == sf::Event::Closed ) mWindow.close();
+        mWorld->getPlayer().handleEvent( *ev );
 
-        if ( ev.type == sf::Event::GainedFocus ) mIsPaused = false;
-        else if ( ev.type == sf::Event::LostFocus ) mIsPaused = true;
-    }    
+        if ( ev->is<sf::Event::Closed>() ) mWindow.close();
+
+        if ( ev->is<sf::Event::FocusGained>() ) mIsPaused = false;
+        else if ( ev->is<sf::Event::FocusLost>() ) mIsPaused = true;
+    }
 }
 
 void Game::update(sf::Time dt)
@@ -60,7 +61,7 @@ void Game::update(sf::Time dt)
 }
 
 void Game::render(void)
-{    
+{
     mWindow.clear(sf::Color::Black);
 
     mWorld->draw();

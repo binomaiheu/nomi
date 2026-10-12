@@ -116,7 +116,7 @@ void SceneNode::resolveCollision( const sf::Vector3f& man, const SceneNode& othe
 
 bool collision(const SceneNode& lhs, const SceneNode& rhs)
 {
-	return lhs.getBoundingRect().intersects(rhs.getBoundingRect());
+	return lhs.getBoundingRect().findIntersection(rhs.getBoundingRect()).has_value();
 }
 
 float distance(const SceneNode& lhs, const SceneNode& rhs)

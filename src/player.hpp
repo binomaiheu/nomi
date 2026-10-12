@@ -26,9 +26,6 @@ public:
     void resolveCollision( const sf::Vector3f& man, const SceneNode& other );
 
 private:
-    sf::Texture mTexture;
-    sf::Sprite mSprite;
-
     float mSpeed;
     float mJumpHeight;
     bool  mCanJump; // player is allowed to jump
@@ -37,6 +34,9 @@ private:
     bool mIsMovingLeft;
     bool mIsMovingRight;
     bool mJump;  
+
+    sf::Texture mTexture;   // must be declared before the sprite that refers to it
+    sf::Sprite  mSprite;
 
 private:
     void onCollision( sf::Vector2f direction );
