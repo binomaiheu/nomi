@@ -2,6 +2,7 @@
 #include "states.hpp"
 #include "utils.hpp"
 
+#include <SFML/Graphics/Image.hpp>
 #include <SFML/Window/Event.hpp>
 
 namespace nomi
@@ -18,6 +19,8 @@ Game::Game( const Options& opts )
     if ( opts.autotest ) return;   // no window needed
 
     mWindow.create( sf::VideoMode( { 1280u, 800u } ), "nomi" );
+    sf::Image icon;
+    if ( icon.loadFromFile( dataPath( "sprites/icon.png" ) ) ) mWindow.setIcon( icon );
     mWindow.setVerticalSyncEnabled( true );
     mWindow.setKeyRepeatEnabled( false );
     mContext.window = &mWindow;

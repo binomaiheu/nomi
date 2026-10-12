@@ -50,6 +50,32 @@ cmake --build --preset debug
 ctest --preset debug
 ```
 
+# Packaging and releasing
+
+The release build links everything statically into a single `nomi.exe` (no console window) and
+packs it with the `share/` assets into a ZIP and an installer (NSIS, with start menu and desktop
+shortcuts and an uninstaller) :
+
+```
+cmake --preset windows-static
+cmake --build --preset package
+cpack --preset package            # -> build-static/nomi-<version>-win64.zip / .exe
+```
+
+The installer needs [NSIS](https://nsis.sourceforge.io) (`winget install NSIS.NSIS`).
+
+To publish a release on GitHub, bump the version in `CMakeLists.txt` (`project(nomi VERSION x.y.z)`),
+commit, and push a matching tag :
+
+```
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The GitHub Actions workflow (`.github/workflows/build.yml`) builds, tests and packages every push,
+and for a `v*` tag it creates the release with the ZIP and installer attached. The installer is not
+code-signed, so Windows SmartScreen shows a warning the first time ("More info" -> "Run anyway").
+
 # Making levels with Tiled
 
 Open `share/levels/nomi.tiled-project` in Tiled, then open or create a map in `share/levels`.

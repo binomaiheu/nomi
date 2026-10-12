@@ -10,23 +10,45 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   endif()
 endif()
 
-project(nomi CXX)
+project(nomi
+  VERSION 1.0.0
+  DESCRIPTION "A little platformer, levels made with Tiled"
+  HOMEPAGE_URL "https://github.com/binomaiheu/nomi"
+  LANGUAGES CXX
+)
 
 option(NOMI_BUILD_TESTS "Build the unit tests" ON)
+option(NOMI_WINDOWED "Build nomi.exe as a windowed application without a console (for releases)" OFF)
+
+# a static vcpkg triplet (x64-windows-static) gives a single nomi.exe without DLLs
+if(VCPKG_TARGET_TRIPLET MATCHES "static")
+  set(NOMI_STATIC ON)
+  set(SFML_STATIC_LIBRARIES ON)
+endif()
 
 # dependencies are declared in vcpkg.json
-find_package(SFML 3 COMPONENTS Graphics Audio REQUIRED)
+find_package(SFML 3 COMPONENTS Graphics Audio Main REQUIRED)
 
-# the vcpkg tmxlite port ships no cmake config, locate it by hand
+# the vcpkg tmxlite port ships no cmake config, locate it and its dependencies by hand
+find_package(pugixml CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(zstd CONFIG REQUIRED)
 find_path(TMXLITE_INCLUDE_DIR tmxlite/Map.hpp REQUIRED)
-find_library(TMXLITE_LIBRARY_RELEASE NAMES tmxlite REQUIRED)
-find_library(TMXLITE_LIBRARY_DEBUG NAMES tmxlite-d tmxlite)
+find_library(TMXLITE_LIBRARY_RELEASE NAMES tmxlite tmxlite-s REQUIRED)
+find_library(TMXLITE_LIBRARY_DEBUG NAMES tmxlite-d tmxlite-s-d tmxlite tmxlite-s)
 add_library(tmxlite UNKNOWN IMPORTED)
 set_target_properties(tmxlite PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${TMXLITE_INCLUDE_DIR}"
   IMPORTED_LOCATION "${TMXLITE_LIBRARY_RELEASE}"
   IMPORTED_LOCATION_DEBUG "${TMXLITE_LIBRARY_DEBUG}"
+  INTERFACE_LINK_LIBRARIES "pugixml::pugixml;ZLIB::ZLIB;$<IF:$<TARGET_EXISTS:zstd::libzstd_shared>,zstd::libzstd_shared,zstd::libzstd_static>"
 )
+if(NOMI_STATIC)
+  set_property(TARGET tmxlite APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS TMXLITE_STATIC)
+endif()
+
+# version number for the code
+configure_file(resources/version.hpp.in "${CMAKE_CURRENT_BINARY_DIR}/generated/version.hpp" @ONLY)
 
 # everything except main() lives in a library so the tests can link it
 add_library(nomi_core STATIC
@@ -50,7 +72,7 @@ add_library(nomi_core STATIC
   src/world.cpp
 )
 
-target_include_directories(nomi_core PUBLIC src)
+target_include_directories(nomi_core PUBLIC src "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
 target_compile_features(nomi_core PUBLIC cxx_std_17)
 
@@ -73,6 +95,20 @@ target_link_libraries(nomi_core
 
 add_executable(nomi src/main.cpp)
 target_link_libraries(nomi PRIVATE nomi_core)
+
+if(WIN32)
+  # icon and version info of nomi.exe
+  enable_language(RC)
+  set(NOMI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/nomi.ico")
+  configure_file(resources/nomi.rc.in "${CMAKE_CURRENT_BINARY_DIR}/generated/nomi.rc" @ONLY)
+  target_sources(nomi PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated/nomi.rc")
+endif()
+
+if(NOMI_WINDOWED)
+  # no console window; SFML::Main provides the WinMain entry point that calls main()
+  set_target_properties(nomi PROPERTIES WIN32_EXECUTABLE ON)
+  target_link_libraries(nomi PRIVATE SFML::Main)
+endif()
 
 # copy the assets next to the executable so it also runs outside the source tree
 add_custom_command(TARGET nomi POST_BUILD
@@ -100,3 +136,44 @@ if(NOMI_BUILD_TESTS)
   add_test(NAME autotest_level1 COMMAND nomi --autotest --level "${CMAKE_CURRENT_SOURCE_DIR}/share/levels/level1.tmx")
   add_test(NAME autotest_level2 COMMAND nomi --autotest --level "${CMAKE_CURRENT_SOURCE_DIR}/share/levels/level2.tmx")
 endif()
+
+# ---------------------------------------------------------------- install & package
+#
+#   cmake --preset windows-static
+#   cmake --build --preset package
+#   cpack --preset package          -> build-static/nomi-<version>-win64.zip and .exe installer
+#
+# The installed layout is nomi.exe with share/ next to it.
+
+install(TARGETS nomi RUNTIME DESTINATION .)
+install(DIRECTORY share/ DESTINATION share)
+install(FILES README.md DESTINATION .)
+if(NOT NOMI_STATIC)
+  # a DLL build : ship the DLLs vcpkg copied next to the executable
+  install(DIRECTORY "$<TARGET_FILE_DIR:nomi>/" DESTINATION .
+          FILES_MATCHING PATTERN "*.dll" PATTERN "share" EXCLUDE)
+endif()
+
+set(CPACK_PACKAGE_NAME "nomi")
+set(CPACK_PACKAGE_VENDOR "Bino Maiheu")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${PROJECT_DESCRIPTION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "nomi")
+set(CPACK_PACKAGE_EXECUTABLES "nomi" "nomi")                 # start menu shortcut
+set(CPACK_SYSTEM_NAME "win64")
+set(CPACK_PACKAGE_CHECKSUM SHA256)
+set(CPACK_STRIP_FILES ON)
+
+# NSIS installer : setup.exe with shortcuts and an uninstaller
+set(CPACK_NSIS_DISPLAY_NAME "nomi ${PROJECT_VERSION}")
+set(CPACK_NSIS_PACKAGE_NAME "nomi")
+set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/nomi.ico")
+set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/resources/nomi.ico")
+set(CPACK_NSIS_INSTALLED_ICON_NAME "nomi.exe")
+set(CPACK_NSIS_URL_INFO_ABOUT "${PROJECT_HOMEPAGE_URL}")
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+set(CPACK_NSIS_MUI_FINISHPAGE_RUN "nomi.exe")
+set(CPACK_CREATE_DESKTOP_LINKS "nomi")
+set(CPACK_NSIS_MANIFEST_DPI_AWARE ON)
+
+set(CPACK_GENERATOR "ZIP;NSIS")
+include(CPack)

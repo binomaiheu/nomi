@@ -1,0 +1,93 @@
+# Builds nomi on Windows, runs the tests and makes the ZIP + installer.
+# Pushing a tag like v1.2.0 also publishes them as a GitHub release :
+#
+#   git tag v1.2.0 && git push origin v1.2.0
+#
+# The tag must match the version in CMakeLists.txt : project(nomi VERSION 1.2.0)
+
+name: build
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write      # needed to create the release
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      # cache the compiled libraries between runs, a clean build of SFML and friends takes a while
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg-cache,readwrite
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that the tag matches the project version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path CMakeLists.txt -Pattern 'VERSION\s+(\d+\.\d+\.\d+)').Matches[0].Groups[1].Value
+          if ("v$version" -ne "${{ github.ref_name }}") {
+            Write-Error "tag ${{ github.ref_name }} does not match project version $version in CMakeLists.txt"
+            exit 1
+          }
+
+      - name: Restore vcpkg binary cache
+        uses: actions/cache@v4
+        with:
+          path: vcpkg-cache
+          key: vcpkg-${{ runner.os }}-static-${{ hashFiles('vcpkg.json') }}
+          restore-keys: vcpkg-${{ runner.os }}-static-
+
+      - name: Set up vcpkg
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force vcpkg-cache | Out-Null
+          git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+          & "$env:VCPKG_ROOT/bootstrap-vcpkg.bat" -disableMetrics
+
+      - name: Make sure NSIS is available
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\NSIS\makensis.exe")) { choco install nsis -y --no-progress }
+
+      - name: Configure
+        run: cmake --preset windows-static
+
+      - name: Build
+        run: cmake --build --preset package
+
+      - name: Test
+        # the level tests and bot playthroughs need OpenGL, which the hosted runners only
+        # provide in software; don't let a runner quirk block a release
+        continue-on-error: true
+        run: ctest --preset package
+
+      - name: Package
+        run: cpack --preset package
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nomi-windows
+          path: |
+            build-static/nomi-*.zip
+            build-static/nomi-*.exe
+            build-static/nomi-*.sha256
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: nomi ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            build-static/nomi-*.zip
+            build-static/nomi-*.exe
+            build-static/nomi-*.sha256

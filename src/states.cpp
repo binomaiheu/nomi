@@ -8,6 +8,7 @@
 
 #include "states.hpp"
 #include "utils.hpp"
+#include "version.hpp"
 
 namespace nomi
 {
@@ -170,6 +171,10 @@ void TitleState::draw( sf::RenderTarget& target )
     centerOrigin( hint );
     hint.setPosition( { size.x / 2.f, size.y - 30.f } );
     target.draw( hint );
+
+    sf::Text version = makeText( textFont, "v" NOMI_VERSION, 28, sf::Color( 255, 255, 255, 200 ), 2.f );
+    version.setPosition( { size.x - version.getLocalBounds().size.x - 16.f, 8.f } );
+    target.draw( version );
 }
 
 
