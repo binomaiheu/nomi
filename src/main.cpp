@@ -4,8 +4,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <Eigen/Dense>
-
 #include "game.hpp"
 
 namespace po = boost::program_options;

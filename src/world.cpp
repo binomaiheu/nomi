@@ -66,9 +66,9 @@ void World::loadTextures()
 // TODO --> there should be q resource manager in the polaye rlcass for the separate reoucers associated with the player...
 
     mTextures.load( "Kit",    "share/pixmaps/kit_from_firefox.png" );
-    mTextures.load( "Gnu",    "share/pixmaps/gnu_from_firefox.png" );
-    mTextures.load( "Wilber", "share/pixmaps/wilber_from_firefox.png" );
-    mTextures.load( "Tux",    "share/pixmaps/tux_from_firefox.png" );
+    mTextures.load( "Gnu",    "share/pixmaps/gnu_from_gnu.png" );
+    mTextures.load( "Wilber", "share/pixmaps/wilber_from_gimp.png" );
+    mTextures.load( "Tux",    "share/pixmaps/tux_from_linux.png" );
 
     return;
 }

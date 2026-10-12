@@ -10,7 +10,8 @@ namespace nomi
 
 SceneNode::SceneNode( SceneNode::Type type )
     : mType( type )
-{    
+    , mParent( nullptr )
+{
 }
 
 SceneNode::~SceneNode()
